@@ -4,9 +4,14 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.gradle.plugin-publish' version '0.10.1' apply false
+}
+
 subprojects {
+    group = 'xyz.tynn.buildsrc'
+
     repositories {
-        google()
-        jcenter()
+        mavenCentral()
     }
 }

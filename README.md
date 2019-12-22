@@ -1,6 +1,15 @@
 BuildSrc
 ========
 
+Adaptive Plugins
+----------------
+
+### Fix IDEA Plugin
+
+    id 'xyz.tynn.idea.fix version '0.1.0'
+
+Fix minor issues within IDEA regarding source sets of Kotlin and Test Fixtures.
+
 
 License
 -------
