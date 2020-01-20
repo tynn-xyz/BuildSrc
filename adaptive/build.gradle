@@ -4,7 +4,7 @@ plugins {
     id 'com.gradle.plugin-publish'
 }
 
-version = '0.1.1'
+version = '0.1.2'
 
 gradlePlugin {
     plugins {
@@ -24,7 +24,7 @@ pluginBundle {
             displayName = 'Fix IDEA Plugin'
             description = 'Fix minor issues within IDEA regarding source sets of Kotlin and Test Fixtures'
             tags = ['android', 'fixtures', 'idea', 'java', 'kotlin']
-            version = '0.1.1'
+            version = '0.1.2'
         }
     }
 }

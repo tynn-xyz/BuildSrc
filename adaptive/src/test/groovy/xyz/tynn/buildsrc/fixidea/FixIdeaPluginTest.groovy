@@ -113,9 +113,8 @@ class FixIdeaPluginTest {
     }
 
     @Nested
-    @DisplayName('with java-test-fixtures')
-    @SuppressWarnings("UnstableApiUsage")
-    class OnApplyJavaTestFixtures {
+    @DisplayName('with idea')
+    class OnApplyIdea {
 
         @ParameterizedTest
         @ArgumentsSource(RootAndSubProjectsProvider)
@@ -132,63 +131,70 @@ class FixIdeaPluginTest {
         }
 
         @Nested
-        @DisplayName('with java plugin')
-        class OnApplyJava {
+        @DisplayName('with java-test-fixtures')
+        class OnApplyJavaTestFixtures {
 
             @ParameterizedTest
             @ArgumentsSource(RootAndSubProjectsProvider)
-            void 'should apply idea'(project) {
+            void 'should be lazy'(project) {
                 this."$project".with {
                     apply plugin: 'java-test-fixtures'
-                    apply plugin: 'java'
+                    apply plugin: 'idea'
 
                     plugins.with {
-                        assert hasPlugin('idea')
-                        assert hasPlugin('java')
                         assert hasPlugin('java-test-fixtures')
+                        assert hasPlugin('idea')
+                        assert !hasPlugin('java')
                     }
                 }
             }
 
-            @ParameterizedTest
-            @ArgumentsSource(RootAndSubProjectsProvider)
-            void 'should configure idea source sets'(project) {
-                this."$project".with {
-                    apply plugin: 'java-test-fixtures'
-                    apply plugin: 'java'
+            @Nested
+            @DisplayName('with java plugin')
+            class OnApplyJava {
 
-                    sourceSets.testFixtures.allSource.srcDirs.each {
-                        assert it in idea.module.testSourceDirs
-                        assert !(it in idea.module.sourceDirs)
+                @ParameterizedTest
+                @ArgumentsSource(RootAndSubProjectsProvider)
+                void 'should configure idea source sets'(project) {
+                    this."$project".with {
+                        apply plugin: 'java-test-fixtures'
+                        apply plugin: 'java'
+                        apply plugin: 'idea'
+
+                        sourceSets.testFixtures.allSource.srcDirs.each {
+                            assert it in idea.module.testSourceDirs
+                            assert !(it in idea.module.sourceDirs)
+                        }
                     }
                 }
-            }
 
-            @ParameterizedTest
-            @ArgumentsSource(RootAndSubProjectsProvider)
-            void 'should configure idea scopes'(project) {
-                this."$project".with {
-                    apply plugin: 'java-test-fixtures'
-                    apply plugin: 'java'
+                @ParameterizedTest
+                @ArgumentsSource(RootAndSubProjectsProvider)
+                void 'should configure idea scopes'(project) {
+                    this."$project".with {
+                        apply plugin: 'java-test-fixtures'
+                        apply plugin: 'java'
+                        apply plugin: 'idea'
 
-                    def api = ProjectBuilder
-                            .builder()
-                            .build()
-                    def implementation = ProjectBuilder
-                            .builder()
-                            .build()
+                        def api = ProjectBuilder
+                                .builder()
+                                .build()
+                        def implementation = ProjectBuilder
+                                .builder()
+                                .build()
 
-                    dependencies {
-                        testFixturesApi api
-                        testFixturesImplementation implementation
+                        dependencies {
+                            testFixturesApi api
+                            testFixturesImplementation implementation
+                        }
+
+                        def provided = idea.module.scopes.PROVIDED.plus.collectMany {
+                            it.allDependencies*.dependencyProject
+                        }
+
+                        assert api in provided
+                        assert implementation in provided
                     }
-
-                    def provided = idea.module.scopes.PROVIDED.plus.collectMany {
-                        it.allDependencies*.dependencyProject
-                    }
-
-                    assert api in provided
-                    assert implementation in provided
                 }
             }
         }

@@ -26,25 +26,26 @@ final class FixIdeaPlugin implements Plugin<Project> {
                 }
             }
 
-            // add test fixture sources and dependencies for IDEA
-            plugins.withId('java-test-fixtures') {
-                plugins.withId('java') {
-                    project.apply plugin: 'idea'
+            plugins.withId('idea') {
 
-                    configurations {
-                        ideaTestFixturesClasspath {
-                            extendsFrom testFixturesApi
-                            extendsFrom testFixturesImplementation
-                            canBeConsumed false
-                            canBeResolved true
+                // add test fixture sources and dependencies for IDEA
+                plugins.withId('java-test-fixtures') {
+                    plugins.withId('java') {
+                        configurations {
+                            ideaTestFixturesClasspath {
+                                extendsFrom testFixturesApi
+                                extendsFrom testFixturesImplementation
+                                canBeConsumed false
+                                canBeResolved true
+                            }
                         }
-                    }
 
-                    idea {
-                        module {
-                            sourceDirs -= sourceSets.testFixtures.allSource
-                            testSourceDirs += sourceSets.testFixtures.allSource.srcDirs
-                            scopes.PROVIDED.plus += [configurations.ideaTestFixturesClasspath]
+                        idea {
+                            module {
+                                sourceDirs -= sourceSets.testFixtures.allSource
+                                testSourceDirs += sourceSets.testFixtures.allSource.srcDirs
+                                scopes.PROVIDED.plus += [configurations.ideaTestFixturesClasspath]
+                            }
                         }
                     }
                 }
