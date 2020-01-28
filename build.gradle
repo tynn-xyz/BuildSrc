@@ -6,12 +6,51 @@ buildscript {
 
 plugins {
     id 'com.gradle.plugin-publish' version '0.10.1' apply false
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '0.7'
 }
+
+apply from: 'deps.gradle'
 
 subprojects {
     group = 'xyz.tynn.buildsrc'
 
     repositories {
         mavenCentral()
+    }
+
+    plugins.withId('java-gradle-plugin') {
+        project.apply plugin: 'com.gradle.plugin-publish'
+
+        pluginBundle {
+            website = 'https://github.com/tynn-xyz/BuildSrc/blob/master/README.md'
+            vcsUrl = 'https://github.com/tynn-xyz/BuildSrc/'
+        }
+
+        tasks.named('testClasses') {
+            dependsOn tasks.pluginUnderTestMetadata
+        }
+
+        idea.project.settings {
+            idea.project.settings {
+                delegateActions {
+                    //noinspection UnnecessaryQualifiedReference
+                    testRunner = org.jetbrains.gradle.ext.ActionDelegationConfig.TestRunner.GRADLE
+                    delegateBuildRunToGradle = true
+                }
+            }
+        }
+    }
+
+    afterEvaluate {
+        test {
+            useJUnitPlatform()
+            testLogging {
+                events "failed"
+                exceptionFormat "full"
+                showCauses true
+                showExceptions true
+                showStackTraces true
+            }
+        }
     }
 }

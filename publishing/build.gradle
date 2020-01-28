@@ -1,0 +1,44 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+version = '0.1.0'
+
+gradlePlugin {
+    plugins {
+        androidSources {
+            id = 'xyz.tynn.android.sources'
+            implementationClass = 'xyz.tynn.buildsrc.publishing.AndroidSourcesPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    plugins {
+        androidSources {
+            displayName = 'Android Library Sources'
+            description = 'Provide sources JAR for all Android Library software components.'
+            tags = ['android', 'java', 'library', 'publishing', 'sources']
+            version = '0.1.0'
+        }
+    }
+}
+
+repositories {
+    google()
+    jcenter()
+}
+
+dependencies {
+    compileOnly deps.plugins.android
+    compileOnly deps.plugins.kotlin
+
+    testRuntimeOnly deps.junit.engine
+
+    testImplementation deps.junit.api
+    testImplementation deps.junit.params
+    testImplementation deps.mockito.junit
+    testImplementation deps.mockito.inline
+    testImplementation configurations.compileOnly
+}
