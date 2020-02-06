@@ -17,14 +17,14 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import static xyz.tynn.buildsrc.publishing.PluginMessage.ANDROID_UPDATE;
+import static xyz.tynn.buildsrc.publishing.Scoped.ANDROID_UPDATE;
 
-class VariantAction implements Action<LibraryVariant> {
+final class VariantAction implements Action<LibraryVariant> {
 
     private final ProjectContext context;
-    private final List<ArtifactScope> scopes;
+    private final List<PublishingScope> scopes;
 
-    VariantAction(ProjectContext context, List<ArtifactScope> scopes) {
+    VariantAction(ProjectContext context, List<PublishingScope> scopes) {
         this.context = context;
         this.scopes = scopes;
     }
@@ -33,16 +33,19 @@ class VariantAction implements Action<LibraryVariant> {
     public void execute(@Nonnull LibraryVariant variant) {
         try {
             VariantContext context = this.context.getVariantContext(variant);
-            for (ArtifactScope scope : scopes) {
-                TaskProvider<Jar> artifact = context.getArtifactJar(scope);
-                Configuration configuration = context.getConfiguration(scope);
-                configuration.getArtifacts().addLater(artifact.map(context.getVariantArtifact(scope)));
-                configuration.attributes(context.getArtifactAttributes(scope));
-                AdhocComponentWithVariants component = context.getComponent(scope);
-                component.addVariantsFromConfiguration(configuration, this.context.getMavenMapping());
-            }
+            for (PublishingScope scope : scopes)
+                prepareConfiguration(context.getTaskContext(scope));
         } catch (UnknownDomainObjectException e) {
             throw new InvalidUserCodeException(ANDROID_UPDATE, e);
         }
+    }
+
+    void prepareConfiguration(TaskContext context) {
+        TaskProvider<Jar> jarProvider = context.getJarProvider();
+        Configuration configuration = context.getConfiguration();
+        configuration.getArtifacts().addLater(jarProvider.map(context.getPublishArtifact()));
+        configuration.attributes(context.getPublishingAttributes());
+        AdhocComponentWithVariants component = context.getComponent();
+        component.addVariantsFromConfiguration(configuration, context.getMavenMapping());
     }
 }

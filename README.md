@@ -46,6 +46,21 @@ Android Plugins
 A collection of plugins to help publishing _Android_ Library projects with
 _Gradle_ metadata.
 
+#### Android Library Javadoc
+[![Plugin][sources-badge]][sources]
+
+Provides configurations and tasks for _Java_ variant javadoc artifacts.
+These artifacts are added to the components provided with the
+[Support for the Maven Publish plugin] from version 3.6 of the _Android_
+_Gradle_ plugin.
+
+##### Task and Configuration naming
+
+ * :*variantName*Javadoc
+ * :*variantName*JavadocJar
+ * *variantName*JavadocPublication
+ * *variantName*AllJavadocPublication
+
 #### Android Library Sources
 [![Plugin][sources-badge]][sources]
 

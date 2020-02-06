@@ -10,7 +10,7 @@ import org.gradle.api.Action;
 
 import javax.annotation.Nonnull;
 
-class PluginAction implements Action<LibraryPlugin> {
+final class PluginAction implements Action<LibraryPlugin> {
 
     private final ProjectContext context;
     private final Action<LibraryVariant> action;

@@ -3,44 +3,88 @@
 
 package xyz.tynn.buildsrc.publishing;
 
-import com.android.build.api.attributes.BuildTypeAttr;
-import com.android.build.api.attributes.VariantAttr;
-import com.android.build.gradle.api.LibraryVariant;
-import com.android.builder.model.BuildType;
-
-import org.gradle.api.Project;
 import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import static org.gradle.api.attributes.Bundling.BUNDLING_ATTRIBUTE;
+import static org.gradle.api.attributes.Bundling.EXTERNAL;
+import static org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE;
+import static org.gradle.api.attributes.Category.DOCUMENTATION;
+import static org.gradle.api.attributes.DocsType.DOCS_TYPE_ATTRIBUTE;
+import static org.gradle.api.attributes.Usage.USAGE_ATTRIBUTE;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class VariantAttributesTest {
 
     @Mock
-    BuildType buildType;
+    AttributeContainer attributeContainer;
+
     @Mock
-    LibraryVariant variant;
+    VariantContext context;
+    @Mock
+    PublishingScope scope;
+
+    @InjectMocks
+    VariantAttributes attributes;
 
     @Test
-    @SuppressWarnings("ConstantConditions")
-    void executeShouldAddVariantAttributes() {
-        String buildTypeName = "buildTypeName";
-        String variantName = "variantName";
-        doReturn(buildTypeName).when(buildType).getName();
-        doReturn(buildType).when(variant).getBuildType();
-        doReturn(variantName).when(variant).getName();
-        Project project = ProjectBuilder.builder().build();
-        AttributeContainer attributes = project.getConfigurations().create("test").getAttributes();
+    void executeShouldBuildTypeAttribute() {
+        attributes.execute(attributeContainer);
 
-        new VariantAttributes(variant, project.getObjects()).execute(attributes);
+        verify(context).setBuildTypeAttribute(attributeContainer);
+    }
 
-        assertEquals(buildTypeName, attributes.getAttribute(BuildTypeAttr.ATTRIBUTE).getName());
-        assertEquals(variantName, attributes.getAttribute(VariantAttr.ATTRIBUTE).getName());
+    @Test
+    void executeShouldSetProductFlavorAttrAttributes() {
+        attributes.execute(attributeContainer);
+
+        verify(context).setProductFlavorAttributes(attributeContainer);
+    }
+
+    @Test
+    void executeShouldSetVariantAttribute() {
+        attributes.execute(attributeContainer);
+
+        verify(context).setVariantAttribute(attributeContainer);
+    }
+
+    @Test
+    void executeShouldSetExternalBundlingAttribute() {
+        attributes.execute(attributeContainer);
+
+        verify(context).setAttribute(attributeContainer, BUNDLING_ATTRIBUTE, EXTERNAL);
+    }
+
+    @Test
+    void executeShouldSetDocumentationCategoryAttribute() {
+        attributes.execute(attributeContainer);
+
+        verify(context).setAttribute(attributeContainer, CATEGORY_ATTRIBUTE, DOCUMENTATION);
+    }
+
+    @Test
+    void executeShouldSetSourcesDocsTypeAttribute() {
+        String docsType = "docsType";
+        when(scope.getDocsType()).thenReturn(docsType);
+
+        attributes.execute(attributeContainer);
+
+        verify(context).setAttribute(attributeContainer, DOCS_TYPE_ATTRIBUTE, docsType);
+    }
+
+    @Test
+    void executeShouldSetJavaRuntimeUsageAttribute() {
+        String usage = "usage";
+        when(scope.getUsage()).thenReturn(usage);
+
+        attributes.execute(attributeContainer);
+
+        verify(context).setAttribute(attributeContainer, USAGE_ATTRIBUTE, usage);
     }
 }

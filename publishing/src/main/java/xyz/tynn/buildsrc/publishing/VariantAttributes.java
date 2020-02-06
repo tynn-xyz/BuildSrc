@@ -3,30 +3,24 @@
 
 package xyz.tynn.buildsrc.publishing;
 
-import com.android.build.api.attributes.BuildTypeAttr;
-import com.android.build.api.attributes.VariantAttr;
-import com.android.build.gradle.api.LibraryVariant;
-
-import org.gradle.api.Action;
 import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.api.model.ObjectFactory;
 
-final class VariantAttributes implements Action<AttributeContainer> {
+import javax.annotation.Nonnull;
 
-    private final ObjectFactory objects;
+final class VariantAttributes extends ArtifactAttributes {
 
-    private final String name;
-    private final String buildType;
+    private final VariantContext context;
 
-    VariantAttributes(LibraryVariant variant, ObjectFactory objectFactory) {
-        this.objects = objectFactory;
-        this.name = variant.getName();
-        this.buildType = variant.getBuildType().getName();
+    VariantAttributes(VariantContext context, PublishingScope scope) {
+        super(context, scope);
+        this.context = context;
     }
 
     @Override
-    public void execute(AttributeContainer attributes) {
-        attributes.attribute(BuildTypeAttr.ATTRIBUTE, objects.named(BuildTypeAttr.class, buildType));
-        attributes.attribute(VariantAttr.ATTRIBUTE, objects.named(VariantAttr.class, name));
+    public void execute(@Nonnull AttributeContainer attributes) {
+        super.execute(attributes);
+        context.setBuildTypeAttribute(attributes);
+        context.setVariantAttribute(attributes);
+        context.setProductFlavorAttributes(attributes);
     }
 }

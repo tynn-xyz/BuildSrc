@@ -3,20 +3,41 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import com.android.build.api.attributes.BuildTypeAttr;
+import com.android.build.api.attributes.ProductFlavorAttr;
+import com.android.build.api.attributes.VariantAttr;
 import com.android.build.gradle.api.LibraryVariant;
+import com.android.builder.model.BaseConfig;
+import com.android.builder.model.ProductFlavor;
+import com.android.builder.model.SourceProvider;
 
 import org.gradle.api.Action;
+import org.gradle.api.Named;
+import org.gradle.api.Task;
 import org.gradle.api.Transformer;
-import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.PublishArtifact;
+import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.internal.HasConvention;
+import org.gradle.api.plugins.Convention;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.jvm.tasks.Jar;
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet;
 
-class VariantContext {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.gradle.api.attributes.Attribute.of;
+import static xyz.tynn.buildsrc.publishing.ZeroUtils.join;
+import static xyz.tynn.buildsrc.publishing.ZeroUtils.joinCapitalized;
+
+final class VariantContext {
 
     private final ProjectContext context;
     private final LibraryVariant variant;
@@ -26,44 +47,94 @@ class VariantContext {
         this.variant = variant;
     }
 
-    Configuration getConfiguration(ArtifactScope scope) {
-        return context.getConfiguration(scope.getPublicationName(variant.getName()));
+    <T extends Named> void setAttribute(AttributeContainer attributes, Attribute<T> key, String name) {
+        context.setAttribute(attributes, key, name);
     }
 
-    Action<AttributeContainer> getArtifactAttributes(ArtifactScope scope) {
-        return context.getArtifactAttributes(scope.getArtifactAttributes(this));
+    void setBuildTypeAttribute(AttributeContainer attributes) {
+        context.setAttribute(attributes, BuildTypeAttr.ATTRIBUTE, variant.getBuildType().getName());
     }
 
-    TaskProvider<Jar> getArtifactJar(ArtifactScope scope) {
-        String name = scope.getJarName(variant.getName());
-        try {
-            return context.getArtifactJar(name);
-        } catch (UnknownTaskException e) {
-            return context.getArtifactJar(name, scope.getJarConfig(this));
+    void setProductFlavorAttributes(AttributeContainer attributes) {
+        for (ProductFlavor flavor : variant.getProductFlavors()) {
+            Attribute<ProductFlavorAttr> attr = of(flavor.getDimension(), ProductFlavorAttr.class);
+            context.setAttribute(attributes, attr, flavor.getName());
         }
     }
 
-    AdhocComponentWithVariants getComponent(ArtifactScope scope) {
+    void setVariantAttribute(AttributeContainer attributes) {
+        context.setAttribute(attributes, VariantAttr.ATTRIBUTE, variant.getName());
+    }
+
+    Configuration getConfiguration(PublishingScope scope) {
+        return context.getConfiguration(scope.getPublicationName(variant.getName()));
+    }
+
+    String getArtifactClassifier() {
+        ArrayList<String> parts = new ArrayList<>();
+        for (BaseConfig config : variant.getProductFlavors())
+            parts.add(config.getName());
+        parts.add(variant.getBuildType().getName());
+        return join(parts);
+    }
+
+    TaskProvider<Jar> getJarProvider(PublishingScope scope, Action<Jar> config) {
+        String name = ZeroUtils.joinCapitalized(variant.getName(), scope.getName(), "jar");
+        TaskProvider<Jar> provider = context.getTaskProvider(name, Jar.class, config);
+        context.getTaskProvider("build", provider);
+        return provider;
+    }
+
+    <T extends Task> TaskProvider<T> getTaskProvider(PublishingScope scope, Class<T> type, Action<T> config) {
+        return context.getTaskProvider(ZeroUtils.joinCapitalized(variant.getName(), scope.getName()), type, config);
+    }
+
+    List<File> getBootClasspath() {
+        return context.getLibraryExtension().getBootClasspath();
+    }
+
+    AdhocComponentWithVariants getComponent(PublishingScope scope) {
         return context.getComponent(scope.getComponentName(variant.getName()));
     }
 
-    Action<AttributeContainer> getFlavorAttributes() {
-        return context.getFlavorAttributes(variant);
+    String getDirName() {
+        return variant.getDirName();
     }
 
-    Action<AttributeContainer> getSourcesAttributes() {
-        return context.getSourcesAttributes();
+    Set<File> getJavaSourceDirectories() {
+        HashSet<File> sourceDirectories = new HashSet<>();
+        for (SourceProvider sourceSet : variant.getSourceSets())
+            sourceDirectories.addAll(sourceSet.getJavaDirectories());
+        return sourceDirectories;
     }
 
-    Action<Jar> getSourcesJar(String destinationDir) {
-        return context.getSourcesJar(variant, destinationDir);
+    Set<File> getKotlinSourceDirectories() {
+        HashSet<File> sourceDirectories = new HashSet<>();
+        for (SourceProvider sourceSet : variant.getSourceSets()) {
+            try {
+                Convention convention = ((HasConvention) sourceSet).getConvention();
+                KotlinSourceSet kotlinSourceSet = convention.getPlugin(KotlinSourceSet.class);
+                sourceDirectories.addAll(kotlinSourceSet.getKotlin().getSrcDirs());
+            } catch (ClassCastException | IllegalStateException | NoClassDefFoundError ignored) {
+            }
+        }
+        return sourceDirectories;
     }
 
-    Transformer<PublishArtifact, AbstractArchiveTask> getVariantArtifact(ArtifactScope scope) {
-        return context.getVariantArtifact(scope.getArtifactClassifier(variant.getName()));
+    TaskContext getTaskContext(PublishingScope scope) {
+        return new TaskContext(this, scope);
     }
 
-    Action<AttributeContainer> getVariantAttributes() {
-        return context.getVariantAttributes(variant);
+    Transformer<PublishArtifact, AbstractArchiveTask> getVariantArtifact(PublishingScope scope) {
+        return new VariantArtifact(scope.getArtifactClassifier(variant.getName()));
+    }
+
+    void connectAssembleTasks(TaskProvider<?> provider) {
+        String flavorName = variant.getFlavorName();
+        if (!flavorName.isEmpty())
+            context.getTaskProvider(ZeroUtils.joinCapitalized("assemble", flavorName), provider);
+        context.getTaskProvider(joinCapitalized("assemble", variant.getBuildType()), provider);
+        for (ProductFlavor productFlavor : variant.getProductFlavors())
+            context.getTaskProvider(joinCapitalized("assemble", productFlavor), provider);
     }
 }

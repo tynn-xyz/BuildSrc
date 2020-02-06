@@ -8,9 +8,15 @@ import org.gradle.api.component.ConfigurationVariantDetails;
 
 final class MavenMapping implements Action<ConfigurationVariantDetails> {
 
+    private final String mavenScope;
+
+    MavenMapping(String mavenScope) {
+        this.mavenScope = mavenScope;
+    }
+
     @Override
     public void execute(ConfigurationVariantDetails details) {
-        details.mapToMavenScope("runtime");
+        details.mapToMavenScope(mavenScope);
         details.mapToOptional();
     }
 }

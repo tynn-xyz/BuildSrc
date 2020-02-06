@@ -1,6 +1,11 @@
+//  Copyright 2020 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
 package xyz.tynn.buildsrc.publishing;
 
-interface PluginMessage {
+import java.util.function.Function;
+
+interface Scoped<T> extends Function<TaskContext, T> {
 
     String ANDROID_REQUIRED = "The Android Sources plugin requires the Android Library plugin.";
 

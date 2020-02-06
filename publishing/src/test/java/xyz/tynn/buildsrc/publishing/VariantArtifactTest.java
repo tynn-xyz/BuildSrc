@@ -15,7 +15,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.verify;
 
 @SuppressWarnings("WeakerAccess")
 @ExtendWith(MockitoExtension.class)

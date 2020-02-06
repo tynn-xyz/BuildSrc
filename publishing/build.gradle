@@ -3,10 +3,15 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-version = '0.1.0'
+version = '0.1.1'
 
 gradlePlugin {
     plugins {
+        androidJavadoc {
+            id = 'xyz.tynn.android.javadoc'
+            implementationClass = 'xyz.tynn.buildsrc.publishing.AndroidJavadocPlugin'
+        }
+
         androidSources {
             id = 'xyz.tynn.android.sources'
             implementationClass = 'xyz.tynn.buildsrc.publishing.AndroidSourcesPlugin'
@@ -16,11 +21,18 @@ gradlePlugin {
 
 pluginBundle {
     plugins {
+        androidJavadoc {
+            displayName = 'Android Library Javadoc'
+            description = 'Provide javadoc JAR for all Android Library software components.'
+            tags = ['android', 'java', 'javadoc', 'library', 'publishing']
+            version = '0.1.0'
+        }
+
         androidSources {
             displayName = 'Android Library Sources'
             description = 'Provide sources JAR for all Android Library software components.'
-            tags = ['android', 'java', 'library', 'publishing', 'sources']
-            version = '0.1.0'
+            tags = ['android', 'java', 'kotlin', 'library', 'publishing', 'sources']
+            version = '0.1.1'
         }
     }
 }

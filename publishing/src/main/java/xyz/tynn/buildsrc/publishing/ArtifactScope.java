@@ -3,90 +3,54 @@
 
 package xyz.tynn.buildsrc.publishing;
 
-import org.gradle.api.Action;
 import org.gradle.api.Named;
-import org.gradle.api.attributes.AttributeContainer;
-import org.gradle.jvm.tasks.Jar;
-
-import java.util.List;
+import org.gradle.api.attributes.DocsType;
 
 import javax.annotation.Nonnull;
 
-import static com.android.utils.StringHelper.appendCapitalized;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static com.android.builder.model.AndroidProject.FD_OUTPUTS;
+import static xyz.tynn.buildsrc.publishing.MavenScope.COMPILE;
+import static xyz.tynn.buildsrc.publishing.MavenScope.RUNTIME;
 
-enum ArtifactScope {
+enum ArtifactScope implements Named {
 
-    ALL_VARIANT_SOURCES(true, Type.SOURCES),
-    VARIANT_SOURCES(false, Type.SOURCES);
+    JAVADOC(
+            DocsType.JAVADOC,
+            COMPILE,
+            TaskContext::getJavadocTask
+    ),
 
-    private final Type type;
-    private final boolean isAllPublication;
+    SOURCES(
+            DocsType.SOURCES,
+            RUNTIME,
+            TaskContext::getSourceDirectories
+    );
 
-    ArtifactScope(boolean isAllPublication, Type type) {
-        this.isAllPublication = isAllPublication;
-        this.type = type;
+    private final String name;
+    private final MavenScope mavenScope;
+    private final Scoped<?> sourcePath;
+
+    ArtifactScope(String name, MavenScope mavenScope, Scoped<?> sourcePath) {
+        this.name = name;
+        this.mavenScope = mavenScope;
+        this.sourcePath = sourcePath;
     }
 
-    List<Action<AttributeContainer>> getArtifactAttributes(VariantContext context) {
-        if (!isAllPublication)
-            return singletonList(type.getArtifactAttributes(context));
-        return asList(
-                type.getArtifactAttributes(context),
-                context.getVariantAttributes(),
-                context.getFlavorAttributes()
-        );
+    @Nonnull
+    @Override
+    public String getName() {
+        return name;
     }
 
-    String getArtifactClassifier(String name) {
-        return isAllPublication ? name + '-' + type.getName() : type.getName();
+    MavenScope getMavenScope() {
+        return mavenScope;
     }
 
-    String getComponentName(String name) {
-        return isAllPublication ? "all" : name;
+    Scoped<?> getSourcePath() {
+        return sourcePath;
     }
 
-    Action<Jar> getJarConfig(VariantContext context) {
-        return type.getJarConfig(context);
-    }
-
-    String getJarName(String name) {
-        return appendCapitalized(name, type.getName(), "Jar");
-    }
-
-    String getPublicationName(String name) {
-        return appendCapitalized(name, isAllPublication ? "all" : "", type.getName(), "Publication");
-    }
-
-    private enum Type implements Named {
-
-        SOURCES("sources") {
-            @Override
-            Action<AttributeContainer> getArtifactAttributes(VariantContext context) {
-                return context.getSourcesAttributes();
-            }
-
-            @Override
-            Action<Jar> getJarConfig(VariantContext context) {
-                return context.getSourcesJar(getName());
-            }
-        };
-
-        private final String name;
-
-        Type(String name) {
-            this.name = name;
-        }
-
-        @Nonnull
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        abstract Action<AttributeContainer> getArtifactAttributes(VariantContext context);
-
-        abstract Action<Jar> getJarConfig(VariantContext context);
+    String getOutputsDir() {
+        return FD_OUTPUTS + '/' + name;
     }
 }
