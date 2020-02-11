@@ -57,6 +57,7 @@ repositories {
 dependencies {
     compileOnly deps.plugins.android
     compileOnly deps.plugins.kotlin
+    compileOnly deps.plugins.dokka
 
     testRuntimeOnly deps.junit.engine
 
