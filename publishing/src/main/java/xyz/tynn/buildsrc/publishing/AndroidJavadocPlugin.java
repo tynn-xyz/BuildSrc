@@ -17,7 +17,7 @@ import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_JAVADOC;
  * It defines javadoc configurations and Jar tasks for all Android build variants to be published with
  * the variant components.
  */
-public final class AndroidJavadocPlugin extends AndroidActionPlugin {
+public final class AndroidJavadocPlugin extends AbstractPublishingPlugin {
 
     @Override
     Action<LibraryVariant> getVariantAction(ProjectContext context) {

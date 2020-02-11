@@ -5,6 +5,7 @@ package xyz.tynn.buildsrc.publishing
 
 import org.gradle.api.InvalidUserCodeException
 import org.gradle.api.Project
+import org.gradle.api.plugins.MavenPlugin
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Spy
@@ -16,10 +17,10 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 
 @ExtendWith(MockitoExtension.class)
-class AndroidJavadocPluginTest {
+class AndroidMavenPluginTest {
 
     @Spy
-    AndroidJavadocPlugin plugin
+    AndroidMavenPlugin plugin
 
     @Test
     void "apply should not run without android plugins"() {
@@ -35,30 +36,36 @@ class AndroidJavadocPluginTest {
     }
 
     @Test
-    void "apply should not configure javadoc without android library plugin"() {
+    void "apply should not configure publications without android library plugin"() {
         builder().build().with {
             plugin.apply it
 
             evaluate()
 
-            assertTrue configurations.findAll { name =~ /JavadocPublication$/ }.empty
+            assertFalse plugins.hasPlugin(MavenPlugin)
         }
     }
 
     @Test
-    void "apply should configure javadoc with android library plugin"() {
+    void "apply should configure release publications with android library plugin"() {
         builder().build().with {
             plugin.apply it
 
             apply plugin: 'com.android.library'
-            android.compileSdkVersion = 29
+            android {
+                compileSdkVersion = 29
+                flavorDimensions 'app', 'env'
+                productFlavors {
+                    open { dimension 'app' }
+                    closed { dimension 'app' }
+                    source { dimension 'env' }
+                }
+            }
 
             evaluate()
 
-            assertNotNull configurations.debugJavadocPublication
-            assertNotNull configurations.releaseJavadocPublication
-            assertNotNull configurations.debugAllJavadocPublication
-            assertNotNull configurations.releaseAllJavadocPublication
+            assertNotNull publishing.publications.openSourceRelease
+            assertNotNull publishing.publications.closedSourceRelease
         }
     }
 }

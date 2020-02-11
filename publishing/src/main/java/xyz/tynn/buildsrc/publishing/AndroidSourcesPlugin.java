@@ -17,7 +17,7 @@ import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_SOURCES;
  * It defines sources configurations and Jar tasks for all Android build variants to be published with
  * the variant components.
  */
-public final class AndroidSourcesPlugin extends AndroidActionPlugin {
+public final class AndroidSourcesPlugin extends AbstractPublishingPlugin {
 
     @Override
     Action<LibraryVariant> getVariantAction(ProjectContext context) {

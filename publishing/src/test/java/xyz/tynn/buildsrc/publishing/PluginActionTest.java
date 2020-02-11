@@ -4,7 +4,6 @@
 package xyz.tynn.buildsrc.publishing;
 
 import com.android.build.gradle.LibraryPlugin;
-import com.android.build.gradle.api.LibraryVariant;
 
 import org.gradle.api.Action;
 import org.junit.jupiter.api.Test;
@@ -26,16 +25,16 @@ class PluginActionTest {
     @Mock(answer = RETURNS_DEEP_STUBS)
     ProjectContext context;
     @Mock
-    Action<LibraryVariant> variantAction;
+    Action<ProjectContext> variantAction;
 
     @InjectMocks
     PluginAction action;
 
     @Test
-    void executeShouldRunVariantActionOnAllVariants() {
+    void executeShouldExecuteVariantAction() {
         action.execute(plugin);
 
-        verify(context.getLibraryExtension().getLibraryVariants()).all(variantAction);
+        verify(variantAction).execute(context);
     }
 
     @Test

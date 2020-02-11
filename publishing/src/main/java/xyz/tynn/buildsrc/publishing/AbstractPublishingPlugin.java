@@ -14,17 +14,21 @@ import javax.annotation.Nonnull;
 
 import static xyz.tynn.buildsrc.publishing.Scoped.ANDROID_REQUIRED;
 
-abstract class AndroidActionPlugin implements Plugin<Project> {
+abstract class AbstractPublishingPlugin implements Plugin<Project>, Action<ProjectContext> {
 
     @Override
-    public final void apply(@Nonnull Project project) {
+    final public void apply(@Nonnull Project project) {
         try {
             ProjectContext context = getProjectContext(project);
-            Action<LibraryVariant> variantAction = getVariantAction(context);
-            context.withLibraryPlugin(context.getPluginAction(variantAction));
+            context.withLibraryPlugin(context.getPluginAction(this));
         } catch (NoClassDefFoundError e) {
             throw new InvalidUserCodeException(ANDROID_REQUIRED, e);
         }
+    }
+
+    @Override
+    public void execute(@Nonnull ProjectContext context) {
+        context.getLibraryExtension().getLibraryVariants().all(getVariantAction(context));
     }
 
     abstract Action<LibraryVariant> getVariantAction(ProjectContext context);

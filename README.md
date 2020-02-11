@@ -46,13 +46,28 @@ Android Plugins
 A collection of plugins to help publishing _Android_ Library projects with
 _Gradle_ metadata.
 
+#### Android Library Maven
+[![Plugin][maven-badge]][maven]
+
+Provides publications for all release variant components provided with the
+[Support for the Maven Publish plugin] from version 3.6 of the _Android_
+_Gradle_ plugin.
+
+    id 'xyz.tynn.android.maven' version 'x.y.z'
+
+##### Publication naming
+
+ * *variantName*
+
 #### Android Library Javadoc
-[![Plugin][sources-badge]][sources]
+[![Plugin][javadoc-badge]][javadoc]
 
 Provides configurations and tasks for _Java_ variant javadoc artifacts.
 These artifacts are added to the components provided with the
 [Support for the Maven Publish plugin] from version 3.6 of the _Android_
 _Gradle_ plugin.
+
+    id 'xyz.tynn.android.javadoc' version 'x.y.z'
 
 ##### Task and Configuration naming
 
@@ -68,6 +83,8 @@ Provides configurations and tasks for _Java_ and _Kotlin_ variant sources
 artifacts. These artifacts are added to the components provided with the
 [Support for the Maven Publish plugin] from version 3.6 of the _Android_
 _Gradle_ plugin.
+
+    id 'xyz.tynn.android.sources' version 'x.y.z'
 
 ##### Task and Configuration naming
 
@@ -100,6 +117,10 @@ License
 
   [idea]: https://plugins.gradle.org/plugin/xyz.tynn.idea.fix
   [idea-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/idea/fix/xyz.tynn.idea.fix.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
+  [javadoc]: https://plugins.gradle.org/plugin/xyz.tynn.android.javadoc
+  [javadoc-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/javadoc/xyz.tynn.android.javadoc.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
+  [maven]: https://plugins.gradle.org/plugin/xyz.tynn.android.maven
+  [maven-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/maven/xyz.tynn.android.maven.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [sources]: https://plugins.gradle.org/plugin/xyz.tynn.android.sources
   [sources-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/sources/xyz.tynn.android.sources.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [travis]: https://travis-ci.com/tynn-xyz/BuildSrc

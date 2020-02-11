@@ -13,15 +13,15 @@ import javax.annotation.Nonnull;
 final class PluginAction implements Action<LibraryPlugin> {
 
     private final ProjectContext context;
-    private final Action<LibraryVariant> action;
+    private final Action<ProjectContext> action;
 
-    PluginAction(ProjectContext context, Action<LibraryVariant> action) {
+    PluginAction(ProjectContext context, Action<ProjectContext> action) {
         this.context = context;
         this.action = action;
     }
 
     @Override
     public void execute(@Nonnull LibraryPlugin plugin) {
-        context.getLibraryExtension().getLibraryVariants().all(action);
+        action.execute(context);
     }
 }

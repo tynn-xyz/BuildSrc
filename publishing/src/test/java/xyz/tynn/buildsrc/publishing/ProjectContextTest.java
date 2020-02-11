@@ -15,6 +15,8 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static java.lang.String.valueOf;
 import static org.gradle.api.attributes.Attribute.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,6 +49,13 @@ class ProjectContextTest {
 
     @InjectMocks
     ProjectContext context;
+
+    @Test
+    void applyPluginShouldApplyPlugin() {
+        context.applyPlugin(IvyPublishPlugin.class);
+
+        verify(project.getPluginManager()).apply(IvyPublishPlugin.class);
+    }
 
     @Test
     void withLibraryPluginShouldRunActionWithPluginType() {
@@ -96,8 +106,37 @@ class ProjectContextTest {
     }
 
     @Test
+    void getMavenActionShouldReturnMavenAction() {
+        assertTrue(context.getMavenAction() instanceof MavenAction);
+    }
+
+    @Test
     void getPluginActionShouldReturnPluginAction() {
         assertTrue(context.getPluginAction(mock(Action.class)) instanceof PluginAction);
+    }
+
+    @Test
+    void getProjectGroupShouldReturnProjectGroup() {
+        int group = 5;
+        when(project.getGroup()).thenReturn(group);
+
+        assertEquals(valueOf(group), context.getProjectGroup());
+    }
+
+    @Test
+    void getProjectNameShouldReturnProjectName() {
+        String name = "name";
+        when(project.getName()).thenReturn(name);
+
+        assertEquals(name, context.getProjectName());
+    }
+
+    @Test
+    void getPublishingExtensionShouldGetExtensionByType() {
+        PublishingExtension extension = mock(PublishingExtension.class);
+        when(project.getExtensions().getByType(PublishingExtension.class)).thenReturn(extension);
+
+        assertEquals(extension, context.getPublishingExtension());
     }
 
     @Test

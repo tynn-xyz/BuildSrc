@@ -122,7 +122,7 @@ class PublishingAndroidJavadocTest {
     @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
     @MethodSource("gradleAndAndroidVersions")
     @DisplayName('publishToMavenLocal should publish all Android javadoc JARs')
-    void shouldPublishAndroidSourcesJars(g, a, hasKotlin) {
+    void shouldPublishAndroidJavadocJars(g, a, hasKotlin) {
         buildFile << """
             apply plugin: 'com.android.library'
             apply plugin: 'maven-publish'            

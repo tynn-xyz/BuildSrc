@@ -9,18 +9,15 @@ import com.android.build.gradle.api.LibraryVariant;
 
 import org.gradle.api.Action;
 import org.gradle.api.Named;
+import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
-import org.gradle.api.component.SoftwareComponentContainer;
-import org.gradle.api.model.ObjectFactory;
-import org.gradle.api.plugins.ExtensionContainer;
-import org.gradle.api.plugins.PluginContainer;
+import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -28,48 +25,59 @@ import static java.util.Arrays.asList;
 
 final class ProjectContext {
 
-    private final SoftwareComponentContainer components;
-    private final ConfigurationContainer configurations;
-    private final ExtensionContainer extensions;
-    private final ObjectFactory objects;
-    private final PluginContainer plugins;
-    private final TaskContainer tasks;
+    private final Project project;
 
     ProjectContext(Project project) {
-        this.components = project.getComponents();
-        this.configurations = project.getConfigurations();
-        this.extensions = project.getExtensions();
-        this.objects = project.getObjects();
-        this.plugins = project.getPlugins();
-        this.tasks = project.getTasks();
+        this.project = project;
+    }
+
+    void applyPlugin(Class<? extends Plugin<? extends Project>> plugin) {
+        project.getPluginManager().apply(plugin);
     }
 
     void withLibraryPlugin(Action<LibraryPlugin> action) {
-        plugins.withType(LibraryPlugin.class, action);
+        project.getPlugins().withType(LibraryPlugin.class, action);
     }
 
     <T extends Named> void setAttribute(AttributeContainer attributes, Attribute<T> key, String name) {
-        attributes.attribute(key, objects.named(key.getType(), name));
+        attributes.attribute(key, project.getObjects().named(key.getType(), name));
     }
 
     Configuration getConfiguration(String name) {
-        return configurations.maybeCreate(name);
+        return project.getConfigurations().maybeCreate(name);
     }
 
     AdhocComponentWithVariants getComponent(String name) {
-        return (AdhocComponentWithVariants) components.getByName(name);
+        return (AdhocComponentWithVariants) project.getComponents().getByName(name);
     }
 
     LibraryExtension getLibraryExtension() {
-        return extensions.getByType(LibraryExtension.class);
+        return project.getExtensions().getByType(LibraryExtension.class);
     }
 
-    Action<LibraryPlugin> getPluginAction(Action<LibraryVariant> action) {
+    Action<LibraryVariant> getMavenAction() {
+        return new MavenAction(this);
+    }
+
+    Action<LibraryPlugin> getPluginAction(Action<ProjectContext> action) {
         return new PluginAction(this, action);
+    }
+
+    String getProjectGroup() {
+        return project.getGroup().toString();
+    }
+
+    String getProjectName() {
+        return project.getName();
+    }
+
+    PublishingExtension getPublishingExtension() {
+        return project.getExtensions().getByType(PublishingExtension.class);
     }
 
     TaskProvider<Task> getTaskProvider(String name, Object... paths) {
         Action<Task> config = task -> task.dependsOn(paths);
+        TaskContainer tasks = project.getTasks();
         try {
             return tasks.named(name, config);
         } catch (UnknownTaskException e) {
@@ -78,6 +86,7 @@ final class ProjectContext {
     }
 
     <T extends Task> TaskProvider<T> getTaskProvider(String name, Class<T> type, Action<T> config) {
+        TaskContainer tasks = project.getTasks();
         try {
             return tasks.named(name, type);
         } catch (UnknownTaskException e) {
