@@ -76,6 +76,25 @@ _Gradle_ plugin.
  * *variantName*JavadocPublication
  * *variantName*AllJavadocPublication
 
+#### Android Library KDoc
+[![Plugin][kdoc-badge]][kdoc]
+
+Provides configurations and tasks for _Java_  and _Kotlin_variant KDoc
+artifacts. These artifacts are added to the components provided with the
+[Support for the Maven Publish plugin] from version 3.6 of the _Android_
+_Gradle_ plugin. This plugin uses [dokka] and requires it in the build
+classpath only.
+
+    id 'org.jetbrains.dokka' version '0.10.1' apply false
+    id 'xyz.tynn.android.javadoc' version 'x.y.z'
+
+##### Task and Configuration naming
+
+ * :*variantName*Kdoc
+ * :*variantName*KdocJar
+ * *variantName*KdocPublication
+ * *variantName*AllKdocPublication
+
 #### Android Library Sources
 [![Plugin][sources-badge]][sources]
 
@@ -111,6 +130,7 @@ License
     limitations under the License.
 
 
+  [dokka]: https://github.com/Kotlin/dokka
   [KAS]: https://kotlinlang.org/docs/reference/using-gradle.html#android-studio
   [Gradle Plugin Portal]: https://plugins.gradle.org/
   [Support for the Maven Publish plugin]: https://developer.android.com/studio/preview/features#maven-publish
@@ -119,6 +139,8 @@ License
   [idea-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/idea/fix/xyz.tynn.idea.fix.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [javadoc]: https://plugins.gradle.org/plugin/xyz.tynn.android.javadoc
   [javadoc-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/javadoc/xyz.tynn.android.javadoc.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
+  [kdoc]: https://plugins.gradle.org/plugin/xyz.tynn.android.kdoc
+  [kdoc-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/kdoc/xyz.tynn.android.kdoc.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [maven]: https://plugins.gradle.org/plugin/xyz.tynn.android.maven
   [maven-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/maven/xyz.tynn.android.maven.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [sources]: https://plugins.gradle.org/plugin/xyz.tynn.android.sources

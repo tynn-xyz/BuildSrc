@@ -47,6 +47,15 @@ final class VariantContext {
         this.variant = variant;
     }
 
+    void connectAssembleTasks(TaskProvider<?> provider) {
+        String flavorName = variant.getFlavorName();
+        if (!flavorName.isEmpty())
+            context.getTaskProvider(ZeroUtils.joinCapitalized("assemble", flavorName), provider);
+        context.getTaskProvider(joinCapitalized("assemble", variant.getBuildType()), provider);
+        for (ProductFlavor productFlavor : variant.getProductFlavors())
+            context.getTaskProvider(joinCapitalized("assemble", productFlavor), provider);
+    }
+
     <T extends Named> void setAttribute(AttributeContainer attributes, Attribute<T> key, String name) {
         context.setAttribute(attributes, key, name);
     }
@@ -129,12 +138,7 @@ final class VariantContext {
         return new VariantArtifact(scope.getArtifactClassifier(variant.getName()));
     }
 
-    void connectAssembleTasks(TaskProvider<?> provider) {
-        String flavorName = variant.getFlavorName();
-        if (!flavorName.isEmpty())
-            context.getTaskProvider(ZeroUtils.joinCapitalized("assemble", flavorName), provider);
-        context.getTaskProvider(joinCapitalized("assemble", variant.getBuildType()), provider);
-        for (ProductFlavor productFlavor : variant.getProductFlavors())
-            context.getTaskProvider(joinCapitalized("assemble", productFlavor), provider);
+    String getVariantName() {
+        return variant.getName();
     }
 }

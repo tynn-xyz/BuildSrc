@@ -13,6 +13,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.jvm.tasks.Jar;
+import org.jetbrains.dokka.gradle.DokkaTask;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -118,6 +119,14 @@ class TaskContextTest {
     }
 
     @Test
+    void getKdocTaskShouldDelegateToVariantContext() {
+        TaskProvider<DokkaTask> provider = mock(TaskProvider.class);
+        when(variantContext.getTaskProvider(eq(scope), eq(DokkaTask.class), any(KdocTask.class))).thenReturn(provider);
+
+        assertEquals(provider, context.getKdocTask());
+    }
+
+    @Test
     void getMavenMappingShouldReturnMavenMapping() {
         assertTrue(context.getMavenMapping() instanceof MavenMapping);
     }
@@ -163,5 +172,13 @@ class TaskContextTest {
     @Test
     void getVariantAttributesShouldReturnVariantAttributes() {
         assertTrue(context.getVariantAttributes() instanceof VariantAttributes);
+    }
+
+    @Test
+    void getVariantNameShouldDelegateToVariantContext() {
+        String name = "name";
+        when(variantContext.getVariantName()).thenReturn(name);
+
+        assertEquals(name, context.getVariantName());
     }
 }

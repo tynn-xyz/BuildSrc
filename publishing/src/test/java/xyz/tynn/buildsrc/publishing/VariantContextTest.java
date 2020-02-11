@@ -274,4 +274,12 @@ class VariantContextTest {
 
         verify(projectContext).getTaskProvider("assembleFlavor", provider);
     }
+
+    @Test
+    void getVariantNameShouldDelegateToVariantContext() {
+        String name = "name";
+        when(variant.getName()).thenReturn(name);
+
+        assertEquals(name, context.getVariantName());
+    }
 }

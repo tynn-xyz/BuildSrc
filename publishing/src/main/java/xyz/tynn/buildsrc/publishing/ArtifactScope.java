@@ -20,6 +20,12 @@ enum ArtifactScope implements Named {
             TaskContext::getJavadocTask
     ),
 
+    KDOC(
+            "kdoc",
+            COMPILE,
+            TaskContext::getKdocTask
+    ),
+
     SOURCES(
             DocsType.SOURCES,
             RUNTIME,

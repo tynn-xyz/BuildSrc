@@ -14,12 +14,15 @@ import static org.gradle.api.attributes.Usage.JAVA_RUNTIME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.JAVADOC;
+import static xyz.tynn.buildsrc.publishing.ArtifactScope.KDOC;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.SOURCES;
 import static xyz.tynn.buildsrc.publishing.MavenScope.COMPILE;
 import static xyz.tynn.buildsrc.publishing.MavenScope.RUNTIME;
 import static xyz.tynn.buildsrc.publishing.PublishingScope.ALL_VARIANT_JAVADOC;
+import static xyz.tynn.buildsrc.publishing.PublishingScope.ALL_VARIANT_KDOC;
 import static xyz.tynn.buildsrc.publishing.PublishingScope.ALL_VARIANT_SOURCES;
 import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_JAVADOC;
+import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_KDOC;
 import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_SOURCES;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "WeakerAccess"})
@@ -141,6 +144,118 @@ class PublishingScopeTest {
     @Test
     void variantJavadocUsageShouldBeJavaApi() {
         assertEquals(JAVA_API, VARIANT_JAVADOC.getUsage());
+    }
+
+    // ALL_VARIANT_KDOC
+
+    @Test
+    void allVariantKdocArtifactClassifierShouldHaveVariantNamePrefix() {
+        assertEquals(variantName + "-kdoc", ALL_VARIANT_KDOC.getArtifactClassifier(variantName));
+    }
+
+    @Test
+    void allVariantKdocComponentNameShouldBeAll() {
+        assertEquals("all", ALL_VARIANT_KDOC.getComponentName(variantName));
+    }
+
+    @Test
+    void allVariantKdocDocsTypeShouldBeKdoc() {
+        assertEquals("kdoc", ALL_VARIANT_KDOC.getDocsType());
+    }
+
+    @Test
+    void allVariantKdocNameShouldBeVariantKdoc() {
+        assertEquals(KDOC.getName(), ALL_VARIANT_KDOC.getName());
+    }
+
+    @Test
+    void allVariantKdocOutputsDirShouldBeKdoc() {
+        assertEquals(KDOC.getOutputsDir(), ALL_VARIANT_KDOC.getOutputsDir());
+    }
+
+    @Test
+    void allVariantKdocSourcePathShouldBeKdocJar() {
+        ALL_VARIANT_KDOC.getSourcePath().apply(taskContext);
+
+        verify(taskContext).getKdocTask();
+    }
+
+    @Test
+    void allVariantKdocMavenScopeShouldBeCompile() {
+        assertEquals(COMPILE.getName(), ALL_VARIANT_KDOC.getMavenScope());
+    }
+
+    @Test
+    void allVariantKdocPublishingAttributesShouldBeVariantAttributes() {
+        ALL_VARIANT_KDOC.getPublishingAttributes().apply(taskContext);
+
+        verify(taskContext).getVariantAttributes();
+    }
+
+    @Test
+    void allVariantKdocPublicationNameShouldBeAllVariantKdoc() {
+        assertEquals(variantName + "AllKdocPublication", ALL_VARIANT_KDOC.getPublicationName(variantName));
+    }
+
+    @Test
+    void allVariantKdocUsageShouldBeJavaApi() {
+        assertEquals(JAVA_API, ALL_VARIANT_KDOC.getUsage());
+    }
+
+    // VARIANT_KDOC
+
+    @Test
+    void variantKdocArtifactClassifierShouldBeKdoc() {
+        assertEquals(KDOC.getName(), VARIANT_KDOC.getArtifactClassifier(variantName));
+    }
+
+    @Test
+    void variantKdocComponentNameShouldBeVariantName() {
+        assertEquals(variantName, VARIANT_KDOC.getComponentName(variantName));
+    }
+
+    @Test
+    void variantKdocDocsTypeShouldBeKdoc() {
+        assertEquals("kdoc", VARIANT_KDOC.getDocsType());
+    }
+
+    @Test
+    void variantKdocNameShouldBeVariantKdoc() {
+        assertEquals(KDOC.getName(), VARIANT_KDOC.getName());
+    }
+
+    @Test
+    void variantKdocOutputsDirShouldBeKdoc() {
+        assertEquals(KDOC.getOutputsDir(), VARIANT_KDOC.getOutputsDir());
+    }
+
+    @Test
+    void variantKdocSourcePathShouldBeKdocJar() {
+        VARIANT_KDOC.getSourcePath().apply(taskContext);
+
+        verify(taskContext).getKdocTask();
+    }
+
+    @Test
+    void variantKdocMavenScopeShouldBeCompile() {
+        assertEquals(COMPILE.getName(), VARIANT_KDOC.getMavenScope());
+    }
+
+    @Test
+    void variantKdocPublishingAttributesShouldBeArtifactAttributes() {
+        VARIANT_KDOC.getPublishingAttributes().apply(taskContext);
+
+        verify(taskContext).getArtifactAttributes();
+    }
+
+    @Test
+    void variantKdocPublicationNameShouldBeAllVariantKdoc() {
+        assertEquals(variantName + "KdocPublication", VARIANT_KDOC.getPublicationName(variantName));
+    }
+
+    @Test
+    void variantKdocUsageShouldBeJavaApi() {
+        assertEquals(JAVA_API, VARIANT_KDOC.getUsage());
     }
 
     // ALL_VARIANT_SOURCES

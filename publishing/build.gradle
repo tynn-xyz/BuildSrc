@@ -12,6 +12,11 @@ gradlePlugin {
             implementationClass = 'xyz.tynn.buildsrc.publishing.AndroidJavadocPlugin'
         }
 
+        androidKdoc {
+            id = 'xyz.tynn.android.kdoc'
+            implementationClass = 'xyz.tynn.buildsrc.publishing.AndroidKdocPlugin'
+        }
+
         androidMaven {
             id = 'xyz.tynn.android.maven'
             implementationClass = 'xyz.tynn.buildsrc.publishing.AndroidMavenPlugin'
@@ -31,6 +36,13 @@ pluginBundle {
             description = 'Provide Javadoc JAR for all Android Library software components.'
             tags = ['android', 'java', 'javadoc', 'library', 'publishing']
             version = '0.1.1'
+        }
+
+        androidJavadoc {
+            displayName = 'Android Library Kdoc'
+            description = 'Provide KDoc JAR for all Android Library software components.'
+            tags = ['android', 'dokka', 'java', 'kdoc', 'kotlin', 'library', 'publishing']
+            version = '0.1.0'
         }
 
         androidMaven {
@@ -59,11 +71,12 @@ dependencies {
     compileOnly deps.plugins.kotlin
     compileOnly deps.plugins.dokka
 
-    testRuntimeOnly deps.junit.engine
+    testImplementation configurations.compileOnly
 
     testImplementation deps.junit.api
     testImplementation deps.junit.params
     testImplementation deps.mockito.junit
     testImplementation deps.mockito.inline
-    testImplementation configurations.compileOnly
+
+    testRuntimeOnly deps.junit.engine
 }

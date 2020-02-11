@@ -17,7 +17,7 @@ import static xyz.tynn.buildsrc.publishing.Scoped.ANDROID_REQUIRED;
 abstract class AbstractPublishingPlugin implements Plugin<Project>, Action<ProjectContext> {
 
     @Override
-    final public void apply(@Nonnull Project project) {
+    public final void apply(@Nonnull Project project) {
         try {
             ProjectContext context = getProjectContext(project);
             context.withLibraryPlugin(context.getPluginAction(this));

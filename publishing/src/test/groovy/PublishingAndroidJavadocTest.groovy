@@ -22,7 +22,7 @@ class PublishingAndroidJavadocTest {
     static def gradleVersions = [
             '5.6.4',
             '6.0.1',
-            '6.1'
+            '6.1.1'
     ]
     static def androidVersions = [
             '3.6.+': gradleVersions,
@@ -76,14 +76,14 @@ class PublishingAndroidJavadocTest {
             sources.mkdirs()
             new File(sources, "${it.capitalize()}Example.java") << """
                 package com.example.test;
-                /** Some javadoc **/
+                /** Some Javadoc **/
                 public class ${it.capitalize()}Example { }
             """
             sources = new File(projectDir, "src/$it/kotlin/com/example/test")
             sources.mkdirs()
             new File(sources, "${it.capitalize()}Example.kt") << """
                 package com.example.test
-                /** Some kdoc **/
+                /** Some KDoc **/
                 fun ${it.capitalize()}Example?.globalExtFunction() = this 
             """
         }

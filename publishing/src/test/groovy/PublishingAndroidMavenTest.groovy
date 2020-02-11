@@ -20,7 +20,7 @@ class PublishingAndroidMavenTest {
     static def gradleVersions = [
             '5.6.4',
             '6.0.1',
-            '6.1'
+            '6.1.1'
     ]
     static def androidVersions = [
             '3.6.+': gradleVersions,

@@ -8,6 +8,7 @@ import org.gradle.api.Named;
 import org.gradle.api.attributes.AttributeContainer;
 
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.JAVADOC;
+import static xyz.tynn.buildsrc.publishing.ArtifactScope.KDOC;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.SOURCES;
 
 enum PublishingScope implements Named {
@@ -15,6 +16,10 @@ enum PublishingScope implements Named {
     // Javadoc
     ALL_VARIANT_JAVADOC(true, JAVADOC),
     VARIANT_JAVADOC(false, JAVADOC),
+
+    // Kdoc
+    ALL_VARIANT_KDOC(true, KDOC),
+    VARIANT_KDOC(false, KDOC),
 
     // Sources
     ALL_VARIANT_SOURCES(true, SOURCES),

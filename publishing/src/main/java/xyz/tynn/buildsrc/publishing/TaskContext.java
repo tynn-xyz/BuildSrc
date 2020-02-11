@@ -14,6 +14,7 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.jvm.tasks.Jar;
+import org.jetbrains.dokka.gradle.DokkaTask;
 
 import java.io.File;
 import java.util.HashSet;
@@ -58,12 +59,16 @@ final class TaskContext {
         return context.getJarProvider(scope, new JarTask(this));
     }
 
+    Set<File> getJavaSourceDirectories() {
+        return context.getJavaSourceDirectories();
+    }
+
     TaskProvider<Javadoc> getJavadocTask() {
         return context.getTaskProvider(scope, Javadoc.class, new JavadocTask(this));
     }
 
-    Set<File> getJavaSourceDirectories() {
-        return context.getJavaSourceDirectories();
+    TaskProvider<DokkaTask> getKdocTask() {
+        return context.getTaskProvider(scope, DokkaTask.class, new KdocTask(this));
     }
 
     Action<ConfigurationVariantDetails> getMavenMapping() {
@@ -95,5 +100,9 @@ final class TaskContext {
 
     Action<AttributeContainer> getVariantAttributes() {
         return new VariantAttributes(context, scope);
+    }
+
+    String getVariantName() {
+        return context.getVariantName();
     }
 }

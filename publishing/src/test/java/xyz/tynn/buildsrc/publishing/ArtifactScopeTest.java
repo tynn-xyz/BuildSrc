@@ -13,6 +13,7 @@ import static com.android.builder.model.AndroidProject.FD_OUTPUTS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.JAVADOC;
+import static xyz.tynn.buildsrc.publishing.ArtifactScope.KDOC;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.SOURCES;
 import static xyz.tynn.buildsrc.publishing.MavenScope.COMPILE;
 import static xyz.tynn.buildsrc.publishing.MavenScope.RUNTIME;
@@ -29,12 +30,12 @@ class ArtifactScopeTest {
     }
 
     @Test
-    void javadocMavenScopeShouldBeCOMPILE() {
+    void javadocMavenScopeShouldBeCompile() {
         assertEquals(COMPILE, JAVADOC.getMavenScope());
     }
 
     @Test
-    void javadocJarConfigShouldBeJavadocJarFactory() {
+    void javadocSourcePathShouldBeJavadocTask() {
         JAVADOC.getSourcePath().apply(context);
 
         verify(context).getJavadocTask();
@@ -43,6 +44,28 @@ class ArtifactScopeTest {
     @Test
     void javadocOutputsDirShouldBeUnderOutputs() {
         assertEquals(FD_OUTPUTS + '/' + DocsType.JAVADOC, JAVADOC.getOutputsDir());
+    }
+
+    @Test
+    void kdcoNameShouldBeKdocDocsType() {
+        assertEquals("kdoc", KDOC.getName());
+    }
+
+    @Test
+    void kdcoMavenScopeShouldBeCompile() {
+        assertEquals(COMPILE, KDOC.getMavenScope());
+    }
+
+    @Test
+    void kdcoSourcePathShouldBeKdocTask() {
+        KDOC.getSourcePath().apply(context);
+
+        verify(context).getKdocTask();
+    }
+
+    @Test
+    void kdcoOutputsDirShouldBeUnderOutputs() {
+        assertEquals(FD_OUTPUTS + "/kdoc", KDOC.getOutputsDir());
     }
 
     @Test
@@ -56,7 +79,7 @@ class ArtifactScopeTest {
     }
 
     @Test
-    void sourcesJarConfigShouldBeSourcesJarFactory() {
+    void sourcesSourcePathShouldBeSourcesDirectories() {
         SOURCES.getSourcePath().apply(context);
 
         verify(context).getSourceDirectories();
