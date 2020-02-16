@@ -38,7 +38,7 @@ pluginBundle {
             version = '0.1.1'
         }
 
-        androidJavadoc {
+        androidKdoc {
             displayName = 'Android Library Kdoc'
             description = 'Provide KDoc JAR for all Android Library software components.'
             tags = ['android', 'dokka', 'java', 'kdoc', 'kotlin', 'library', 'publishing']

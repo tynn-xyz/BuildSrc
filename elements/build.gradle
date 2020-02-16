@@ -1,0 +1,37 @@
+plugins {
+    id 'groovy'
+    id 'java-gradle-plugin'
+}
+
+version = '0.1.0'
+
+gradlePlugin {
+    plugins {
+        jvmKdoc {
+            id = 'xyz.tynn.jvm.kdoc'
+            implementationClass = 'xyz.tynn.buildsrc.elements.KdocElementsPlugin'
+        }
+    }
+}
+
+pluginBundle {
+    plugins {
+        jvmKdoc {
+            displayName = 'Jvm Library Kdoc Elements'
+            description = 'Provide KDoc Elements JAR for the Java Library software components.'
+            tags = ['dokka', 'java', 'jvm', 'kdoc', 'kotlin', 'library', 'publishing']
+        }
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation deps.junit.api
+    testImplementation deps.junit.params
+
+    testRuntimeOnly deps.junit.engine
+    testRuntimeOnly deps.plugins.dokka
+}

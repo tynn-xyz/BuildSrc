@@ -38,13 +38,49 @@ The `testFixtures` source sets are added as test source directories and to the
 `PROVIDED` scope.
 
 
-Android Plugins
----------------
+Elements Plugins
+----------------
 
-### Publishing
+A collection of plugins to help publishing _Java_ Library projects with
+_Gradle_ metadata.
+
+### Jvm
+
+#### Jvm Library KDoc
+[![Plugin][kdoc-jvm-badge]][kdoc-jvm]
+
+Provides a _kdocElements_ configuration and a _kdocJar_ task to create _Java_
+and _Kotlin_ variant KDoc artifact. This artifact is added to the _java_
+component when requested with `withKdocJar`. This plugin uses [dokka] and
+requires it in the build classpath only.
+
+    id 'org.jetbrains.dokka' version '0.10.1'
+    id 'xyz.tynn.jvm.kdoc' version 'x.y.z'
+
+##### Usage
+
+    java {
+        withJavadocJar()
+        withKdocJar()
+        withSourcesJar()
+    }
+
+    publishing {
+        publications {
+            jvm(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+
+Publishing Plugins
+------------------
 
 A collection of plugins to help publishing _Android_ Library projects with
 _Gradle_ metadata.
+
+### Android
 
 #### Android Library Maven
 [![Plugin][maven-badge]][maven]
@@ -79,14 +115,14 @@ _Gradle_ plugin.
 #### Android Library KDoc
 [![Plugin][kdoc-badge]][kdoc]
 
-Provides configurations and tasks for _Java_  and _Kotlin_variant KDoc
+Provides configurations and tasks for _Java_  and _Kotlin_ variant KDoc
 artifacts. These artifacts are added to the components provided with the
 [Support for the Maven Publish plugin] from version 3.6 of the _Android_
 _Gradle_ plugin. This plugin uses [dokka] and requires it in the build
 classpath only.
 
     id 'org.jetbrains.dokka' version '0.10.1' apply false
-    id 'xyz.tynn.android.javadoc' version 'x.y.z'
+    id 'xyz.tynn.android.kdoc' version 'x.y.z'
 
 ##### Task and Configuration naming
 
@@ -141,6 +177,8 @@ License
   [javadoc-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/javadoc/xyz.tynn.android.javadoc.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [kdoc]: https://plugins.gradle.org/plugin/xyz.tynn.android.kdoc
   [kdoc-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/kdoc/xyz.tynn.android.kdoc.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
+  [kdoc-jvm]: https://plugins.gradle.org/plugin/xyz.tynn.jvm.kdoc
+  [kdoc-jvm-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/jvm/kdoc/xyz.tynn.jvm.kdoc.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [maven]: https://plugins.gradle.org/plugin/xyz.tynn.android.maven
   [maven-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/maven/xyz.tynn.android.maven.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [sources]: https://plugins.gradle.org/plugin/xyz.tynn.android.sources

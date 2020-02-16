@@ -20,7 +20,6 @@ pluginBundle {
             displayName = 'Fix IDEA Plugin'
             description = 'Fix minor issues within IDEA regarding source sets of Kotlin and Test Fixtures'
             tags = ['android', 'fixtures', 'idea', 'java', 'kotlin']
-            version = '0.1.2'
         }
     }
 }

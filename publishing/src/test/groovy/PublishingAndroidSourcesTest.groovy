@@ -97,6 +97,7 @@ class PublishingAndroidSourcesTest {
         def result = prepareGradleRunner(g, a, hasKotlin)
                 .withArguments(
                         'build',
+                        '-xlint',
                 )
                 .build()
 
@@ -114,7 +115,7 @@ class PublishingAndroidSourcesTest {
     void shouldPublishAndroidSourcesJars(g, a, hasKotlin) {
         buildFile << """
             apply plugin: 'com.android.library'
-            apply plugin: 'maven-publish'            
+            apply plugin: 'maven-publish'
 
             android {
                 compileSdkVersion 29

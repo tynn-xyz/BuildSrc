@@ -1,2 +1,3 @@
 include ':adaptive'
+include ':elements'
 include ':publishing'
