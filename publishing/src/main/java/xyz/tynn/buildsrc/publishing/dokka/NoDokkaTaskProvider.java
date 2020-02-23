@@ -12,7 +12,7 @@ import org.gradle.api.tasks.TaskProvider;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("NullableProblems")
-class NoDokkaTaskProvider<T extends Task> implements TaskProvider<T> {
+final class NoDokkaTaskProvider<T extends Task> implements TaskProvider<T> {
 
     @Override
     public void configure(Action<? super T> action) {

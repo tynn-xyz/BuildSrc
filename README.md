@@ -82,12 +82,14 @@ _Gradle_ metadata.
 
 ### Android
 
+A collection of plugins utilising the [Support for the Maven Publish plugin]
+available from version _3.6_ of the _Android Gradle_ plugin.
+
 #### Android Library Maven
 [![Plugin][maven-badge]][maven]
 
 Provides publications for all release variant components provided with the
-[Support for the Maven Publish plugin] from version 3.6 of the _Android_
-_Gradle_ plugin.
+[Support for the Maven Publish plugin].
 
     id 'xyz.tynn.android.maven' version 'x.y.z'
 
@@ -100,8 +102,7 @@ _Gradle_ plugin.
 
 Provides configurations and tasks for _Java_ variant javadoc artifacts.
 These artifacts are added to the components provided with the
-[Support for the Maven Publish plugin] from version 3.6 of the _Android_
-_Gradle_ plugin.
+[Support for the Maven Publish plugin].
 
     id 'xyz.tynn.android.javadoc' version 'x.y.z'
 
@@ -136,8 +137,7 @@ classpath only.
 
 Provides configurations and tasks for _Java_ and _Kotlin_ variant sources
 artifacts. These artifacts are added to the components provided with the
-[Support for the Maven Publish plugin] from version 3.6 of the _Android_
-_Gradle_ plugin.
+[Support for the Maven Publish plugin]
 
     id 'xyz.tynn.android.sources' version 'x.y.z'
 

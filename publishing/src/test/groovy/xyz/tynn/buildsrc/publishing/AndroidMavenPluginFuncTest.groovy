@@ -1,6 +1,8 @@
 //  Copyright 2020 Christian Schmitz
 //  SPDX-License-Identifier: Apache-2.0
 
+package xyz.tynn.buildsrc.publishing
+
 import groovy.transform.PackageScope
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -10,21 +12,22 @@ import org.junit.jupiter.params.provider.MethodSource
 
 import static kotlin.KotlinVersion.CURRENT
 import static org.gradle.testkit.runner.GradleRunner.create
-import static org.gradle.testkit.runner.TaskOutcome.NO_SOURCE
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
+import static org.gradle.util.GradleVersion.version as gradleVersion
 import static org.junit.jupiter.params.provider.Arguments.arguments
 
-class PublishingAndroidMavenTest {
+class AndroidMavenPluginFuncTest {
 
     static def gradleVersions = [
             '5.6.4',
             '6.0.1',
-            '6.1.1'
+            '6.1.1',
+            '6.2',
     ]
     static def androidVersions = [
             '3.6.+': gradleVersions,
-            //'4.0.+': gradleVersions[2..-1],
+            '4.0.+': gradleVersions[2..-1],
     ]
 
     @TempDir
@@ -83,14 +86,22 @@ class PublishingAndroidMavenTest {
                 compileSdkVersion 29
                 buildToolsVersion '29.0.2'
 
-                flavorDimensions 'app'
+                flavorDimensions 'scope', 'context'
                 productFlavors {
                     open {
-                        dimension 'app'
+                        dimension 'scope'
                     }
 
                     closed {
-                        dimension 'app'
+                        dimension 'scope'
+                    }
+
+                    binary {
+                        dimension 'context'
+                    }
+
+                    source {
+                        dimension 'context'
                     }
                 }
             }
@@ -106,17 +117,23 @@ class PublishingAndroidMavenTest {
                 )
                 .build()
 
-        assert result.task(':publishOpenReleasePublicationToMavenLocal').outcome == SUCCESS
-        assert result.task(':publishClosedReleasePublicationToMavenLocal').outcome == SUCCESS
+        assert result.task(':publishClosedBinaryReleasePublicationToMavenLocal').outcome == SUCCESS
+        assert result.task(':publishClosedSourceReleasePublicationToMavenLocal').outcome == SUCCESS
+        assert result.task(':publishOpenBinaryReleasePublicationToMavenLocal').outcome == SUCCESS
+        assert result.task(':publishOpenSourceReleasePublicationToMavenLocal').outcome == SUCCESS
         assert result.task(':publishToMavenLocal').outcome == SUCCESS
 
         def mavenGroup = new File(mavenLocal, 'com/example/test')
 
-        println new File(mavenGroup, "$projectDir.name-closed/$version").listFiles()
-        println new File(mavenGroup, "$projectDir.name-open/$version").listFiles()
+        assertMavenPublication mavenGroup, projectDir, version, 'closed-binary'
+        assertMavenPublication mavenGroup, projectDir, version, 'closed-source'
+        assertMavenPublication mavenGroup, projectDir, version, 'open-binary'
+        assertMavenPublication mavenGroup, projectDir, version, 'open-source'
 
-        assertMavenPublication mavenGroup, projectDir, version, 'closed'
-        assertMavenPublication mavenGroup, projectDir, version, 'open'
+        if (gradleVersion(g.toString()) >= gradleVersion('6.0')) {
+            assert result.task(':publishReleasePublicationToMavenLocal').outcome == SUCCESS
+            assertMavenPublication mavenGroup, projectDir, version
+        }
     }
 
     def prepareGradleRunner(gradleVersion, androidVersion, hasKotlin) {
@@ -133,6 +150,13 @@ class PublishingAndroidMavenTest {
         def dir = new File(mavenGroup, "$project.name-$variant/$version")
         def baseName = "$project.name-$variant-$version"
         assert new File(dir, "${baseName}.aar").exists()
+        assert new File(dir, "${baseName}.pom").exists()
+    }
+
+    static assertMavenPublication(mavenGroup, project, version) {
+        def dir = new File(mavenGroup, "$project.name/$version")
+        def baseName = "$project.name-$version"
+        assert new File(dir, "${baseName}.module").exists()
         assert new File(dir, "${baseName}.pom").exists()
     }
 

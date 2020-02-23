@@ -10,13 +10,18 @@ import org.gradle.api.Action;
 import org.gradle.api.Named;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.publish.PublishingExtension;
 import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
 import org.junit.jupiter.api.Test;
@@ -80,21 +85,71 @@ class ProjectContextTest {
     }
 
     @Test
-    void getConfigurationShouldMaybeCreateConfiguration() {
-        String name = "configurationName";
-        Configuration configuration = mock(Configuration.class);
-        when(project.getConfigurations().maybeCreate(name)).thenReturn(configuration);
+    void getComponentShouldGetComponent() {
+        String name = "componentName";
+        AdhocComponentWithVariants component = mock(AdhocComponentWithVariants.class);
+        when(project.getComponents().getByName(name)).thenReturn(component);
 
-        assertEquals(configuration, context.getConfiguration(name));
+        assertEquals(component, context.getComponent(name, null));
     }
 
     @Test
-    void getComponentShouldGetAdhocComponentWithVariantsByName() {
+    void getComponentShouldGetComponentConcurrent() {
+        String name = "componentName";
+        SoftwareComponentFactory factory = mock(SoftwareComponentFactory.class);
+        AdhocComponentWithVariants component = mock(AdhocComponentWithVariants.class);
+        when(project.getComponents().getByName(name))
+                .thenThrow(UnknownDomainObjectException.class)
+                .thenReturn(component);
+        when(project.getComponents().add(any())).thenReturn(false);
+        when(factory.adhoc(name)).thenReturn(mock(AdhocComponentWithVariants.class));
+
+        assertEquals(component, context.getComponent(name, factory));
+        verify(project.getComponents()).add(any());
+    }
+
+    @Test
+    void getComponentShouldSetComponent() {
+        String name = "componentName";
+        SoftwareComponentFactory factory = mock(SoftwareComponentFactory.class);
+        AdhocComponentWithVariants component = mock(AdhocComponentWithVariants.class);
+        when(project.getComponents().getByName(name)).thenThrow(UnknownDomainObjectException.class);
+        when(project.getComponents().add(component)).thenReturn(true);
+        when(factory.adhoc(name)).thenReturn(component);
+
+        assertEquals(component, context.getComponent(name, factory));
+        verify(project.getComponents()).add(component);
+    }
+
+    @Test
+    void getComponentShouldGetComponentByName() {
         String name = "componentName";
         AdhocComponentWithVariants component = mock(AdhocComponentWithVariants.class);
         when(project.getComponents().getByName(name)).thenReturn(component);
 
         assertEquals(component, context.getComponent(name));
+    }
+
+    @Test
+    void getConfigurationShouldGetConfigurationByName() {
+        String name = "configurationName";
+        Configuration configuration = mock(Configuration.class);
+        when(project.getConfigurations().getByName(name)).thenReturn(configuration);
+
+        assertEquals(configuration, context.getConfiguration(name));
+    }
+
+    @Test
+    void getConfigurationShouldMaybeCreateNonConsumableResolvableConfiguration() {
+        String name = "configurationName";
+        Configuration configuration = mock(Configuration.class);
+        when(project.getConfigurations().getByName(any())).thenThrow(UnknownConfigurationException.class);
+        when(project.getConfigurations().create(name)).thenReturn(configuration);
+
+        assertEquals(configuration, context.getConfiguration(name));
+        verify(configuration).setCanBeConsumed(false);
+        verify(configuration).setCanBeResolved(false);
+        verify(configuration).setVisible(false);
     }
 
     @Test
@@ -107,12 +162,27 @@ class ProjectContextTest {
 
     @Test
     void getMavenActionShouldReturnMavenAction() {
-        assertTrue(context.getMavenAction() instanceof MavenAction);
+        assertTrue(context.getMavenAction(null) instanceof MavenAction);
     }
 
     @Test
     void getPluginActionShouldReturnPluginAction() {
         assertTrue(context.getPluginAction(mock(Action.class)) instanceof PluginAction);
+    }
+
+    @Test
+    void getProjectDependencyShouldWrapMavenPublication() {
+        Dependency dependency = mock(Dependency.class);
+        ArgumentCaptor<CharSequence> path = ArgumentCaptor.forClass(CharSequence.class);
+        MavenPublication publication = mock(MavenPublication.class);
+        when(publication.getGroupId()).thenReturn("group");
+        when(publication.getArtifactId()).thenReturn("name");
+        when(publication.getVersion()).thenReturn("version");
+        when(project.getDependencies().create(any())).thenReturn(dependency);
+
+        assertEquals(dependency, context.getProjectDependency(publication));
+        verify(project.getDependencies()).create(path.capture());
+        assertEquals("group:name:version", path.getValue().toString());
     }
 
     @Test

@@ -1,6 +1,8 @@
 //  Copyright 2020 Christian Schmitz
 //  SPDX-License-Identifier: Apache-2.0
 
+package xyz.tynn.buildsrc.publishing
+
 import groovy.transform.PackageScope
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -17,12 +19,13 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
 import static org.junit.jupiter.params.provider.Arguments.arguments
 
-class PublishingAndroidSourcesTest {
+class AndroidJavadocPluginFuncTest {
 
     static def gradleVersions = [
             '5.6.4',
             '6.0.1',
-            '6.1.1'
+            '6.1.1',
+            '6.2',
     ]
     static def androidVersions = [
             '3.6.+': gradleVersions,
@@ -34,6 +37,7 @@ class PublishingAndroidSourcesTest {
     File projectDir
 
     File buildFile
+
 
     @BeforeEach
     void setup() {
@@ -61,7 +65,7 @@ class PublishingAndroidSourcesTest {
                 jcenter()
             }
 
-            apply plugin: 'xyz.tynn.android.sources'
+            apply plugin: 'xyz.tynn.android.javadoc'
             
             plugins.withId('com.android.library') {
                 if (hasKotlin) project.apply plugin: 'kotlin-android'
@@ -73,18 +77,26 @@ class PublishingAndroidSourcesTest {
         ['main', 'debug', 'release'].each {
             def sources = new File(projectDir, "src/$it/java/com/example/test")
             sources.mkdirs()
-            new File(sources, "${it.capitalize()}Example.java") << "package com.example.test;"
+            new File(sources, "${it.capitalize()}Example.java") << """
+                package com.example.test;
+                /** Some Javadoc **/
+                public class ${it.capitalize()}Example { }
+            """
             sources = new File(projectDir, "src/$it/kotlin/com/example/test")
             sources.mkdirs()
-            new File(sources, "${it.capitalize()}Example.kt") << "package com.example.test"
+            new File(sources, "${it.capitalize()}Example.kt") << """
+                package com.example.test
+                /** Some KDoc **/
+                fun ${it.capitalize()}Example?.globalExtFunction() = this 
+            """
         }
         new File(projectDir, 'src/main/AndroidManifest.xml') << '<manifest package="com.example.test"/>'
     }
 
     @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
     @MethodSource("gradleAndAndroidVersions")
-    @DisplayName('build should create all Android sources JARs')
-    void shouldBuildAndroidSourcesJars(g, a, hasKotlin) {
+    @DisplayName('build should create all Android javadoc JARs')
+    void shouldBuildAndroidJavadocJars(g, a, hasKotlin) {
         buildFile << """
             apply plugin: 'com.android.library'
 
@@ -101,18 +113,20 @@ class PublishingAndroidSourcesTest {
                 )
                 .build()
 
-        assert result.task(':debugSourcesJar').outcome == SUCCESS
-        assert result.task(':releaseSourcesJar').outcome == SUCCESS
+        assert result.task(':debugJavadoc').outcome == SUCCESS
+        assert result.task(':debugJavadocJar').outcome == SUCCESS
+        assert result.task(':releaseJavadoc').outcome == SUCCESS
+        assert result.task(':releaseJavadocJar').outcome == SUCCESS
         assert result.task(':build').outcome == SUCCESS
 
-        assertSources hasKotlin, projectDir, 'debug'
-        assertSources hasKotlin, projectDir, 'release'
+        assertJavadoc projectDir, 'debug'
+        assertJavadoc projectDir, 'release'
     }
 
     @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
     @MethodSource("gradleAndAndroidVersions")
-    @DisplayName('publishToMavenLocal should publish all Android sources JARs')
-    void shouldPublishAndroidSourcesJars(g, a, hasKotlin) {
+    @DisplayName('publishToMavenLocal should publish all Android javadoc JARs')
+    void shouldPublishAndroidJavadocJars(g, a, hasKotlin) {
         buildFile << """
             apply plugin: 'com.android.library'
             apply plugin: 'maven-publish'
@@ -152,16 +166,18 @@ class PublishingAndroidSourcesTest {
                 )
                 .build()
 
-        assert result.task(':debugSourcesJar').outcome == SUCCESS
-        assert result.task(':releaseSourcesJar').outcome == SUCCESS
+        assert result.task(':debugJavadoc').outcome == SUCCESS
+        assert result.task(':debugJavadocJar').outcome == SUCCESS
+        assert result.task(':releaseJavadoc').outcome == SUCCESS
+        assert result.task(':releaseJavadocJar').outcome == SUCCESS
         assert result.task(':publishToMavenLocal').outcome == SUCCESS
 
         def mavenGroup = new File(mavenLocal, 'com/example/test')
 
-        assertSources hasKotlin, mavenGroup, 'android', version, 'debug'
-        assertSources hasKotlin, mavenGroup, 'android', version, 'release'
-        assertSources hasKotlin, mavenGroup, 'debug', version
-        assertSources hasKotlin, mavenGroup, 'release', version
+        assertJavadoc mavenGroup, 'android', version, 'debug'
+        assertJavadoc mavenGroup, 'android', version, 'release'
+        assertJavadoc mavenGroup, 'debug', version
+        assertJavadoc mavenGroup, 'release', version
     }
 
     def prepareGradleRunner(gradleVersion, androidVersion, hasKotlin) {
@@ -174,25 +190,31 @@ class PublishingAndroidSourcesTest {
                 .withGradleVersion(gradleVersion)
     }
 
-    static assertSources(hasKotlin, project, variant) {
+    static assertJavadoc(project, variant) {
         def name = "$project.name-${variant}.jar"
-        assertSources hasKotlin, new File(project, "build/$FD_OUTPUTS/sources/$name")
+        assertJavadoc new File(project, "build/$FD_OUTPUTS/javadoc/$name")
     }
 
-    static assertSources(hasKotlin, group, artifactId, version, variant = null) {
-        def name = "$artifactId-$version-${variant ? "$variant-sources" : 'sources'}.jar"
-        assertSources hasKotlin, new File(group, "$artifactId/$version/$name")
+    static assertJavadoc(group, artifactId, version, variant = null) {
+        def name = "$artifactId-$version-${variant ? "$variant-javadoc" : 'javadoc'}.jar"
+        assertJavadoc new File(group, "$artifactId/$version/$name")
     }
 
-    static assertSources(hasKotlin, artifact) {
+    static assertJavadoc(artifact) {
         assert artifact.exists()
         new ZipFile(artifact).with {
             assert entries().findAll {
-                it.name =~ /(Main|Debug|Release)Example.java$/
+                it.name =~ /^index(-all)?.html$/
             }.size() == 2
-            assert !hasKotlin || entries().findAll {
-                it.name =~ /(Main|Debug|Release)Example.kt$/
-            }.size() == 2
+            def files = entries().findAll {
+                it.name =~ /(Main|Debug|Release)Example.html$/
+            }
+            assert files.size() == 2
+            assert files.every {
+                getInputStream(it).filterLine {
+                    it.contains('https://developer.android.com/reference/')
+                }.toString()
+            }
         }
     }
 

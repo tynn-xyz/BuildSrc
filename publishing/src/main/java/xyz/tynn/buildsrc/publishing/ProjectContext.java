@@ -12,12 +12,18 @@ import org.gradle.api.Named;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
+import org.gradle.api.artifacts.UnknownConfigurationException;
 import org.gradle.api.attributes.Attribute;
 import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
+import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.publish.PublishingExtension;
+import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
@@ -43,20 +49,46 @@ final class ProjectContext {
         attributes.attribute(key, project.getObjects().named(key.getType(), name));
     }
 
-    Configuration getConfiguration(String name) {
-        return project.getConfigurations().maybeCreate(name);
+    AdhocComponentWithVariants getComponent(String name, SoftwareComponentFactory softwareComponentFactory) {
+        try {
+            return getComponent(name);
+        } catch (UnknownDomainObjectException e) {
+            AdhocComponentWithVariants component = softwareComponentFactory.adhoc(name);
+            if (project.getComponents().add(component)) return component;
+            return getComponent(name);
+        }
     }
 
     AdhocComponentWithVariants getComponent(String name) {
         return (AdhocComponentWithVariants) project.getComponents().getByName(name);
     }
 
+    Configuration getConfiguration(String name) {
+        ConfigurationContainer configurations = project.getConfigurations();
+        try {
+            return configurations.getByName(name);
+        } catch (UnknownConfigurationException e) {
+            Configuration configuration = configurations.create(name);
+            configuration.setCanBeConsumed(false);
+            configuration.setCanBeResolved(false);
+            configuration.setVisible(false);
+            return configuration;
+        }
+    }
+
+    Dependency getProjectDependency(MavenPublication publication) {
+        StringBuilder dependency = new StringBuilder(publication.getGroupId());
+        dependency.append(':').append(publication.getArtifactId());
+        dependency.append(':').append(publication.getVersion());
+        return project.getDependencies().create(dependency);
+    }
+
     LibraryExtension getLibraryExtension() {
         return project.getExtensions().getByType(LibraryExtension.class);
     }
 
-    Action<LibraryVariant> getMavenAction() {
-        return new MavenAction(this);
+    Action<LibraryVariant> getMavenAction(SoftwareComponentFactory softwareComponentFactory) {
+        return new MavenAction(this, softwareComponentFactory);
     }
 
     Action<LibraryPlugin> getPluginAction(Action<ProjectContext> action) {

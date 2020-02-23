@@ -7,7 +7,6 @@ import org.gradle.api.InvalidUserCodeException
 import org.gradle.api.Project
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Spy
 import org.mockito.junit.jupiter.MockitoExtension
 
 import static org.gradle.testfixtures.ProjectBuilder.builder
@@ -18,11 +17,9 @@ import static org.mockito.Mockito.*
 @ExtendWith(MockitoExtension.class)
 class AndroidJavadocPluginTest {
 
-    @Spy
-    AndroidJavadocPlugin plugin
-
     @Test
     void "apply should not run without android plugins"() {
+        AndroidJavadocPlugin plugin = spy(AndroidJavadocPlugin)
         doAnswer {
             ProjectContext context = spy(new ProjectContext(it.getArgument(0, Project.class)))
             doThrow(new NoClassDefFoundError()).when(context).getPluginAction(any())
@@ -37,7 +34,7 @@ class AndroidJavadocPluginTest {
     @Test
     void "apply should not configure javadoc without android library plugin"() {
         builder().build().with {
-            plugin.apply it
+            apply plugin: AndroidJavadocPlugin
 
             evaluate()
 
@@ -48,7 +45,7 @@ class AndroidJavadocPluginTest {
     @Test
     void "apply should configure javadoc with android library plugin"() {
         builder().build().with {
-            plugin.apply it
+            apply plugin: AndroidJavadocPlugin
 
             apply plugin: 'com.android.library'
             android.compileSdkVersion = 29
