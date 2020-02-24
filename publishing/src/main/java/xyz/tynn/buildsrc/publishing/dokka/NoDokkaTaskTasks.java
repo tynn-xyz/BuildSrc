@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
 import groovy.lang.Closure;
 
 @SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "NullableProblems", "SuspiciousToArrayCall", "unchecked"})
-class NoDokkaTaskTasks implements TaskContainer, InvocationHandler {
+final class NoDokkaTaskTasks implements TaskContainer, InvocationHandler {
 
     private final TaskContainer tasks;
 

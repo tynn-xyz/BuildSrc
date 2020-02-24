@@ -60,7 +60,7 @@ import groovy.lang.Closure;
 import groovy.lang.MissingPropertyException;
 
 @SuppressWarnings("NullableProblems")
-class NoDokkaTaskProject implements Project {
+final class NoDokkaTaskProject implements Project {
 
     private final Project project;
     private TaskContainer tasks;
