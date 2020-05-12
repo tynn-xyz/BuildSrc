@@ -22,14 +22,17 @@ import static org.junit.jupiter.params.provider.Arguments.arguments
 class AndroidSourcesPluginFuncTest {
 
     static def gradleVersions = [
-            '5.6.4',
-            '6.0.1',
-            '6.1.1',
-            '6.2',
+//            '5.6.4',
+//            '6.0.1',
+//            '6.1.1',
+            '6.2.2',
+            '6.3',
+            '6.4',
     ]
     static def androidVersions = [
             '3.6.+': gradleVersions,
-            //'4.0.+': gradleVersions[2..-1],
+            '4.0.+': gradleVersions,
+            '4.1.+': gradleVersions[2..-1],
     ]
 
     @TempDir

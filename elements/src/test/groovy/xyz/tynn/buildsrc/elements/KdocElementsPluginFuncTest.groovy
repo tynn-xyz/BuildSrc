@@ -21,9 +21,11 @@ import static org.junit.jupiter.params.provider.Arguments.arguments
 class KdocElementsPluginFuncTest {
 
     static def gradleVersions = [
-            '6.0.1',
-            '6.1.1',
-            '6.2',
+//            '6.0.1',
+//            '6.1.1',
+            '6.2.2',
+            '6.3',
+            '6.4',
     ]
 
     @TempDir

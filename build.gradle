@@ -45,8 +45,8 @@ subprojects {
         test {
             useJUnitPlatform()
             testLogging {
-                events "failed"
-                exceptionFormat "full"
+                events 'failed', 'passed'
+                exceptionFormat 'full'
                 showCauses true
                 showExceptions true
                 showStackTraces true
