@@ -1,4 +1,4 @@
-//  Copyright 2020 Christian Schmitz
+//  Copyright 2021 Christian Schmitz
 //  SPDX-License-Identifier: Apache-2.0
 
 package xyz.tynn.buildsrc.elements
@@ -13,23 +13,25 @@ import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
 
 @DisabledIfEnvironmentVariable(named = "CI", matches = "true")
-class KdocElementsPluginFuncTest extends KdocElementsPluginFuncTestBase {
+class KdocElementsPluginKtsFuncTest extends KdocElementsPluginFuncTestBase {
 
     @BeforeEach
     void setup() {
         def classpath = readImplementationClasspath().collect {
-            "classpath files('$it')"
+            """classpath(files("$it"))"""
         }
-        buildFile = new File(projectDir, 'build.gradle')
+        buildFile = new File(projectDir, 'build.gradle.kts')
         buildFile << """
+            import xyz.tynn.buildsrc.elements.withKdocJar
+
             buildscript {
                 repositories {
                     gradlePluginPortal()
                 }
                 dependencies {
                     ${classpath.join('\n')}
-                    classpath 'org.jetbrains.dokka:dokka-gradle-plugin:1.5.31'
-                    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31'
+                    classpath("org.jetbrains.dokka:dokka-gradle-plugin:1.5.31")
+                    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.31")
                 }
             }
 
@@ -37,9 +39,9 @@ class KdocElementsPluginFuncTest extends KdocElementsPluginFuncTestBase {
                 mavenCentral()
             }
 
-            apply plugin: 'xyz.tynn.jvm.kdoc'
+            apply(plugin = "xyz.tynn.jvm.kdoc")
 
-            group = 'com.example.test'
+            group = "com.example.test"
         """
 
         ['main'].each {
@@ -65,9 +67,9 @@ class KdocElementsPluginFuncTest extends KdocElementsPluginFuncTestBase {
     @DisplayName('build should create Java KDoc JAR')
     void shouldBuildJavaKdocJars(g) {
         buildFile << """
-            apply plugin: 'kotlin'
+            apply(plugin = "kotlin")
 
-            java {
+            configure<JavaPluginExtension> {
                 withKdocJar()
             }
         """
@@ -90,18 +92,18 @@ class KdocElementsPluginFuncTest extends KdocElementsPluginFuncTestBase {
     @DisplayName('publishToMavenLocal should publish Java KDoc JAR')
     void shouldPublishJavaKdocJars(g) {
         buildFile << """
-            apply plugin: 'kotlin'
-            apply plugin: 'maven-publish'
+            apply(plugin = "kotlin")
+            apply(plugin = "maven-publish")
 
-            java {
+            configure<JavaPluginExtension> {
                 withKdocJar()
             }
 
-            publishing {
+            configure<PublishingExtension> {
                 publications {
-                    java(MavenPublication) {
-                        from components.java
-                        artifactId = 'java'
+                    create<MavenPublication>("java") {
+                        from(components["java"])
+                        artifactId = "java"
                     }
                 }
             }

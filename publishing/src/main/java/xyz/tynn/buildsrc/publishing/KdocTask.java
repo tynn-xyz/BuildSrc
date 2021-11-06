@@ -1,14 +1,11 @@
-//  Copyright 2020 Christian Schmitz
+//  Copyright 2021 Christian Schmitz
 //  SPDX-License-Identifier: Apache-2.0
 
 package xyz.tynn.buildsrc.publishing;
 
 import org.gradle.api.Action;
 import org.jetbrains.dokka.gradle.DokkaTask;
-
-import java.io.File;
-
-import static java.util.Collections.singletonList;
+import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder;
 
 final class KdocTask implements Action<DokkaTask> {
 
@@ -20,9 +17,11 @@ final class KdocTask implements Action<DokkaTask> {
 
     @Override
     public void execute(DokkaTask dokka) {
-        File buildDir = dokka.getProject().getBuildDir();
-        dokka.setOutputFormat("html");
-        dokka.setOutputDirectory(new File(buildDir, context.getDirName()).getAbsolutePath());
-        dokka.getConfiguration().setAndroidVariants(singletonList(context.getVariantName()));
+        dokka.getOutputDirectory().set(context.getOutputDirectory());
+        dokka.getDokkaSourceSets().all(this::suppressNonVariantSourceSets);
+    }
+
+    private void suppressNonVariantSourceSets(GradleDokkaSourceSetBuilder builder) {
+        if (!context.containsSourceSet(builder.getName())) builder.getSuppress().set(true);
     }
 }

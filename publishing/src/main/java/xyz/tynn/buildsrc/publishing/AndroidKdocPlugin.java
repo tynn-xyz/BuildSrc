@@ -3,6 +3,9 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static xyz.tynn.buildsrc.publishing.PublishingScope.ALL_VARIANT_KDOC;
+import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_KDOC;
+
 import com.android.build.gradle.LibraryPlugin;
 import com.android.build.gradle.api.LibraryVariant;
 
@@ -10,11 +13,6 @@ import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 
 import javax.annotation.Nonnull;
-
-import xyz.tynn.buildsrc.publishing.dokka.NoDokkaTaskPlugin;
-
-import static xyz.tynn.buildsrc.publishing.PublishingScope.ALL_VARIANT_KDOC;
-import static xyz.tynn.buildsrc.publishing.PublishingScope.VARIANT_KDOC;
 
 /**
  * A {@link Plugin} which extends the capabilities of the {@link LibraryPlugin Android library plugin}.
@@ -25,7 +23,7 @@ public final class AndroidKdocPlugin extends AbstractPublishingPlugin {
 
     @Override
     public void execute(@Nonnull ProjectContext context) {
-        context.applyPlugin(NoDokkaTaskPlugin.class);
+        context.applyPlugin("org.jetbrains.dokka");
         super.execute(context);
     }
 

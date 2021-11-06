@@ -32,7 +32,7 @@ public final class AndroidMavenPlugin extends AbstractPublishingPlugin {
 
     @Override
     public void execute(@Nonnull ProjectContext context) {
-        context.applyPlugin(MavenPublishPlugin.class);
+        context.applyPlugin("maven-publish");
         super.execute(context);
     }
 

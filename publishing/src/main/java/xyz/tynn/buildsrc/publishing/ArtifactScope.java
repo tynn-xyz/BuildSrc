@@ -3,14 +3,14 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static com.android.builder.model.AndroidProject.FD_OUTPUTS;
+import static xyz.tynn.buildsrc.publishing.MavenScope.COMPILE;
+import static xyz.tynn.buildsrc.publishing.MavenScope.RUNTIME;
+
 import org.gradle.api.Named;
 import org.gradle.api.attributes.DocsType;
 
 import javax.annotation.Nonnull;
-
-import static com.android.builder.model.AndroidProject.FD_OUTPUTS;
-import static xyz.tynn.buildsrc.publishing.MavenScope.COMPILE;
-import static xyz.tynn.buildsrc.publishing.MavenScope.RUNTIME;
 
 enum ArtifactScope implements Named {
 

@@ -6,32 +6,18 @@ package xyz.tynn.buildsrc.publishing
 import groovy.transform.PackageScope
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
-import static kotlin.KotlinVersion.CURRENT
 import static org.gradle.testkit.runner.GradleRunner.create
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
 import static org.gradle.util.GradleVersion.version as gradleVersion
-import static org.junit.jupiter.params.provider.Arguments.arguments
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class AndroidMavenPluginFuncTest {
-
-    static def gradleVersions = [
-//            '5.6.4',
-//            '6.0.1',
-//            '6.1.1',
-            '6.2.2',
-            '6.3',
-            '6.4',
-    ]
-    static def androidVersions = [
-            '3.6.+': gradleVersions,
-            '4.0.+': gradleVersions,
-            '4.1.+': gradleVersions[2..-1],
-    ]
 
     @TempDir
     @PackageScope
@@ -47,28 +33,29 @@ class AndroidMavenPluginFuncTest {
         buildFile = new File(projectDir, 'build.gradle')
         buildFile << """
             buildscript {
-                ext.hasKotlin = project.findProperty('hasKotlin')
+                ext.kotlinVersion = project.findProperty('kotlinVersion')
                 repositories {
                     google()
-                    jcenter()
+                    mavenCentral()
                 }
                 dependencies {
                     ${classpath.join('\n')}
                     classpath "com.android.tools.build:gradle:\$androidVersion"
-                    if (hasKotlin)
-                        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:$CURRENT'
+                    if (kotlinVersion)
+                        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:\$kotlinVersion"
                 }
             }
 
             repositories {
                 google()
-                jcenter()
+                mavenCentral()
             }
 
             apply plugin: 'xyz.tynn.android.maven'
             
             plugins.withId('com.android.library') {
-                if (hasKotlin) project.apply plugin: 'kotlin-android'
+                if (kotlinVersion)
+                    project.apply plugin: 'kotlin-android'
             }
 
             group = 'com.example.test'
@@ -78,16 +65,15 @@ class AndroidMavenPluginFuncTest {
         new File(projectDir, 'src/main/AndroidManifest.xml') << '<manifest package="com.example.test"/>'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provide")
     @DisplayName('publishToMavenLocal should publish all Android release components')
-    void shouldPublishAndroidReleaseComponents(g, a, hasKotlin) {
+    void shouldPublishAndroidReleaseComponents(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
 
                 flavorDimensions 'scope', 'context'
                 productFlavors {
@@ -110,9 +96,9 @@ class AndroidMavenPluginFuncTest {
             }
         """
 
-        def version = "$a$g+$hasKotlin"
+        def version = "$a$g+$k"
         def mavenLocal = new File("$projectDir/m2/repository")
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         "-Dmaven.repo.local=$mavenLocal",
                         'publishToMavenLocal',
@@ -139,10 +125,10 @@ class AndroidMavenPluginFuncTest {
         }
     }
 
-    def prepareGradleRunner(gradleVersion, androidVersion, hasKotlin) {
+    def prepareGradleRunner(androidVersion, gradleVersion, kotlinVersion) {
         new File(projectDir, 'gradle.properties') << """
             androidVersion=$androidVersion
-            ${hasKotlin ? 'hasKotlin' : 'javaOnly'}=true
+            ${kotlinVersion ? "kotlinVersion=$kotlinVersion" : 'javaOnly=true'}
         """
         return create()
                 .withProjectDir(projectDir)
@@ -161,13 +147,5 @@ class AndroidMavenPluginFuncTest {
         def baseName = "$project.name-$version"
         assert new File(dir, "${baseName}.module").exists()
         assert new File(dir, "${baseName}.pom").exists()
-    }
-
-    static gradleAndAndroidVersions() {
-        androidVersions.collectMany { a, gradleVersions ->
-            gradleVersions.collect { g ->
-                arguments g, a, true
-            }
-        }
     }
 }

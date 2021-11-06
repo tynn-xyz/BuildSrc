@@ -21,7 +21,7 @@ final class KdocElementsPlugin implements Plugin<Project> {
                             null,
                             "kdoc", [],
                             "kdocJar",
-                            tasks.named('dokka'),
+                            tasks.named('dokkaHtml'),
                             components.java,
                             configurations,
                             tasks,

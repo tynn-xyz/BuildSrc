@@ -3,9 +3,12 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.gradle.api.attributes.Attribute.of;
+import static xyz.tynn.buildsrc.publishing.ZeroUtils.join;
+import static xyz.tynn.buildsrc.publishing.ZeroUtils.joinCapitalized;
+
 import com.android.build.api.attributes.BuildTypeAttr;
 import com.android.build.api.attributes.ProductFlavorAttr;
-import com.android.build.api.attributes.VariantAttr;
 import com.android.build.gradle.api.LibraryVariant;
 import com.android.builder.model.BaseConfig;
 import com.android.builder.model.ProductFlavor;
@@ -33,10 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.gradle.api.attributes.Attribute.of;
-import static xyz.tynn.buildsrc.publishing.ZeroUtils.join;
-import static xyz.tynn.buildsrc.publishing.ZeroUtils.joinCapitalized;
-
 final class VariantContext {
 
     private final ProjectContext context;
@@ -50,7 +49,7 @@ final class VariantContext {
     void connectAssembleTasks(TaskProvider<?> provider) {
         String flavorName = variant.getFlavorName();
         if (!flavorName.isEmpty())
-            context.getTaskProvider(ZeroUtils.joinCapitalized("assemble", flavorName), provider);
+            context.getTaskProvider(joinCapitalized("assemble", flavorName), provider);
         context.getTaskProvider(joinCapitalized("assemble", variant.getBuildType()), provider);
         for (ProductFlavor productFlavor : variant.getProductFlavors())
             context.getTaskProvider(joinCapitalized("assemble", productFlavor), provider);
@@ -66,13 +65,14 @@ final class VariantContext {
 
     void setProductFlavorAttributes(AttributeContainer attributes) {
         for (ProductFlavor flavor : variant.getProductFlavors()) {
+            @SuppressWarnings("ConstantConditions")
             Attribute<ProductFlavorAttr> attr = of(flavor.getDimension(), ProductFlavorAttr.class);
             context.setAttribute(attributes, attr, flavor.getName());
         }
     }
 
-    void setVariantAttribute(AttributeContainer attributes) {
-        context.setAttribute(attributes, VariantAttr.ATTRIBUTE, variant.getName());
+    File getBuildDir(String child) {
+        return new File(context.getBuildDir(), child);
     }
 
     Configuration getConfiguration(PublishingScope scope) {
@@ -88,14 +88,14 @@ final class VariantContext {
     }
 
     TaskProvider<Jar> getJarProvider(PublishingScope scope, Action<Jar> config) {
-        String name = ZeroUtils.joinCapitalized(variant.getName(), scope.getName(), "jar");
+        String name = joinCapitalized(variant.getName(), scope.getName(), "jar");
         TaskProvider<Jar> provider = context.getTaskProvider(name, Jar.class, config);
         context.getTaskProvider("build", provider);
         return provider;
     }
 
     <T extends Task> TaskProvider<T> getTaskProvider(PublishingScope scope, Class<T> type, Action<T> config) {
-        return context.getTaskProvider(ZeroUtils.joinCapitalized(variant.getName(), scope.getName()), type, config);
+        return context.getTaskProvider(joinCapitalized(variant.getName(), scope.getName()), type, config);
     }
 
     List<File> getBootClasspath() {
@@ -138,7 +138,9 @@ final class VariantContext {
         return new VariantArtifact(scope.getArtifactClassifier(variant.getName()));
     }
 
-    String getVariantName() {
-        return variant.getName();
+    boolean containsSourceSet(String name) {
+        for (SourceProvider source : variant.getSourceSets())
+            if (source.getName().equals(name)) return true;
+        return false;
     }
 }

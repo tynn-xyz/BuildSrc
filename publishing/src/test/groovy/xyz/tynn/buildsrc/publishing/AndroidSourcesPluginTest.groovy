@@ -48,7 +48,7 @@ class AndroidSourcesPluginTest {
             apply plugin: AndroidSourcesPlugin
 
             apply plugin: 'com.android.library'
-            android.compileSdkVersion = 29
+            android.compileSdkVersion = 31
 
             evaluate()
 

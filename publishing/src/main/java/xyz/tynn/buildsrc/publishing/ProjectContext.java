@@ -3,13 +3,14 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static java.util.Arrays.asList;
+
 import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.LibraryPlugin;
 import com.android.build.gradle.api.LibraryVariant;
 
 import org.gradle.api.Action;
 import org.gradle.api.Named;
-import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.UnknownDomainObjectException;
@@ -27,7 +28,7 @@ import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
 
-import static java.util.Arrays.asList;
+import java.io.File;
 
 final class ProjectContext {
 
@@ -37,8 +38,8 @@ final class ProjectContext {
         this.project = project;
     }
 
-    void applyPlugin(Class<? extends Plugin<? extends Project>> plugin) {
-        project.getPluginManager().apply(plugin);
+    void applyPlugin(String pluginId) {
+        project.getPluginManager().apply(pluginId);
     }
 
     void withLibraryPlugin(Action<LibraryPlugin> action) {
@@ -47,6 +48,10 @@ final class ProjectContext {
 
     <T extends Named> void setAttribute(AttributeContainer attributes, Attribute<T> key, String name) {
         attributes.attribute(key, project.getObjects().named(key.getType(), name));
+    }
+
+    File getBuildDir() {
+        return project.getBuildDir();
     }
 
     AdhocComponentWithVariants getComponent(String name, SoftwareComponentFactory softwareComponentFactory) {

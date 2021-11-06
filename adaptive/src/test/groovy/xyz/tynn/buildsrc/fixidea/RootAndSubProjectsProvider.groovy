@@ -6,12 +6,12 @@ import org.junit.jupiter.params.provider.ArgumentsProvider
 
 import java.util.stream.Stream
 
-import static org.junit.jupiter.params.provider.Arguments.of
+import static org.junit.jupiter.params.provider.Arguments.arguments
 
 class RootAndSubProjectsProvider implements ArgumentsProvider {
 
     @Override
     Stream<? extends Arguments> provideArguments(ExtensionContext context) {
-        return Stream.of(of('rootProject'), of('subProject'))
+        return Stream.of(arguments('rootProject'), arguments('subProject'))
     }
 }

@@ -3,6 +3,17 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+
 import org.gradle.api.Action;
 import org.gradle.api.Transformer;
 import org.gradle.api.artifacts.Configuration;
@@ -23,17 +34,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -88,10 +90,12 @@ class TaskContextTest {
     void getDirNameShouldDelegateToScopeAndVariantContext() {
         String name = "name";
         String dirName = "dirName";
+        File buildDir = new File("path/to/build/dir");
         when(scope.getName()).thenReturn(name);
-        when(context.getDirName()).thenReturn(dirName);
+        when(variantContext.getBuildDir(name)).thenReturn(buildDir);
+        when(variantContext.getDirName()).thenReturn(dirName);
 
-        assertEquals(name + '/' + dirName, context.getDirName());
+        assertEquals(new File(buildDir, dirName), context.getOutputDirectory());
     }
 
     @Test
@@ -132,11 +136,13 @@ class TaskContextTest {
     }
 
     @Test
-    void getOutputsDirShouldDelegateToScope() {
+    void getOutputsDirShouldDelegateToVariantContextWithScope() {
         String outputsDir = "outputsDir";
+        File buildDir = new File("path/to/build/dir");
         when(scope.getOutputsDir()).thenReturn(outputsDir);
+        when(variantContext.getBuildDir(outputsDir)).thenReturn(buildDir);
 
-        assertEquals(outputsDir, context.getOutputsDir());
+        assertEquals(buildDir, context.getOutputsDir());
     }
 
     @Test
@@ -156,10 +162,6 @@ class TaskContextTest {
     }
 
     @Test
-    void getSourceDirectoriesShouldContainJavaDirectories() {
-    }
-
-    @Test
     void getSourceDirectoriesShouldContainJavaAndKotlinDirectories() {
         File java = new File("java");
         File kotlin = new File("kotlin");
@@ -175,10 +177,12 @@ class TaskContextTest {
     }
 
     @Test
-    void getVariantNameShouldDelegateToVariantContext() {
+    void containsSourceSetShouldDelegateToVariantContext() {
         String name = "name";
-        when(variantContext.getVariantName()).thenReturn(name);
+        boolean contains = new Random().nextBoolean();
+        when(variantContext.containsSourceSet(name)).thenReturn(contains);
 
-        assertEquals(name, context.getVariantName());
+        assertEquals(contains, context.containsSourceSet(name));
+        verify(variantContext).containsSourceSet(name);
     }
 }

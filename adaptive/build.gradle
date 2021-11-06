@@ -26,15 +26,16 @@ pluginBundle {
 
 repositories {
     google()
-    jcenter()
 }
 
 dependencies {
-    testRuntimeOnly deps.plugins.android
-    testRuntimeOnly deps.plugins.kotlin
+    testRuntimeOnly deps.android
+    testRuntimeOnly deps.kotlin.gradle
 
     testRuntimeOnly deps.junit.engine
 
     testImplementation deps.junit.api
     testImplementation deps.junit.params
+
+    apply from: "$rootDir/fix16774.gradle"
 }

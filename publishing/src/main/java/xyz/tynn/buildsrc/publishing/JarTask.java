@@ -6,8 +6,6 @@ package xyz.tynn.buildsrc.publishing;
 import org.gradle.api.Action;
 import org.gradle.jvm.tasks.Jar;
 
-import java.io.File;
-
 final class JarTask implements Action<Jar> {
 
     private final TaskContext context;
@@ -20,9 +18,7 @@ final class JarTask implements Action<Jar> {
 
     @Override
     public void execute(Jar jar) {
-        File buildDir = jar.getProject().getBuildDir();
-        File destinationDir = new File(buildDir, context.getOutputsDir());
-        jar.getDestinationDirectory().set(destinationDir);
+        jar.getDestinationDirectory().set(context.getOutputsDir());
         jar.getArchiveClassifier().set(context.getArtifactClassifier());
         jar.from(sourcePath);
     }

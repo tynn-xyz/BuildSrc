@@ -9,8 +9,6 @@ import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.MinimalJavadocOptions;
 import org.gradle.external.javadoc.StandardJavadocDocletOptions;
 
-import java.io.File;
-
 final class JavadocTask implements Action<Javadoc> {
 
     private final TaskContext context;
@@ -22,7 +20,7 @@ final class JavadocTask implements Action<Javadoc> {
     @Override
     public void execute(Javadoc javadoc) {
         Project project = javadoc.getProject();
-        javadoc.setDestinationDir(new File(project.getBuildDir(), context.getDirName()));
+        javadoc.setDestinationDir(context.getOutputDirectory());
         javadoc.setSource(context.getJavaSourceDirectories());
         javadoc.getClasspath().plus(project.files(context.getBootClasspath()));
         MinimalJavadocOptions options = javadoc.getOptions();

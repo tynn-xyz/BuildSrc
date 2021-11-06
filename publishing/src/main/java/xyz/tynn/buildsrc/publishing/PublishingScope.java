@@ -10,6 +10,7 @@ import org.gradle.api.attributes.AttributeContainer;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.JAVADOC;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.KDOC;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.SOURCES;
+import static xyz.tynn.buildsrc.publishing.ZeroUtils.joinCapitalized;
 
 enum PublishingScope implements Named {
 
@@ -63,7 +64,7 @@ enum PublishingScope implements Named {
     }
 
     String getPublicationName(String name) {
-        return ZeroUtils.joinCapitalized(name, isAllPublication ? "all" : "", scope.getName(), "publication");
+        return joinCapitalized(name, isAllPublication ? "all" : "", scope.getName(), "publication");
     }
 
     Scoped<Action<AttributeContainer>> getPublishingAttributes() {

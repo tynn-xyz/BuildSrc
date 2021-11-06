@@ -3,9 +3,24 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.gradle.api.attributes.Attribute.of;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+
 import com.android.build.api.attributes.BuildTypeAttr;
 import com.android.build.api.attributes.ProductFlavorAttr;
-import com.android.build.api.attributes.VariantAttr;
 import com.android.build.gradle.api.LibraryVariant;
 import com.android.builder.model.ProductFlavor;
 import com.android.builder.model.SourceProvider;
@@ -31,21 +46,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-import static org.gradle.api.attributes.Attribute.of;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -82,17 +82,6 @@ class VariantContextTest {
         context.setBuildTypeAttribute(attributes);
 
         verify(projectContext).setAttribute(attributes, BuildTypeAttr.ATTRIBUTE, name);
-    }
-
-    @Test
-    void setVariantAttributeShouldSetVariantAttr() {
-        String name = "name";
-        AttributeContainer attributes = mock(AttributeContainer.class);
-        when(variant.getName()).thenReturn(name);
-
-        context.setVariantAttribute(attributes);
-
-        verify(projectContext).setAttribute(attributes, VariantAttr.ATTRIBUTE, name);
     }
 
     @Test
@@ -135,7 +124,16 @@ class VariantContextTest {
     }
 
     @Test
-    void getComponentShouldShouldDelegateToProjectContext() {
+    void getBuildDirShouldDelegateToProjectContext() {
+        String child = "child";
+        File buildDir = new File("path/to/build/dir");
+        when(projectContext.getBuildDir()).thenReturn(buildDir);
+
+        assertEquals(new File(buildDir, child), context.getBuildDir(child));
+    }
+
+    @Test
+    void getComponentShouldDelegateToProjectContext() {
         String name = "name";
         String componentName = "componentName";
         AdhocComponentWithVariants component = mock(AdhocComponentWithVariants.class);
@@ -147,7 +145,7 @@ class VariantContextTest {
     }
 
     @Test
-    void getConfigurationShouldShouldDelegateToProjectContext() {
+    void getConfigurationShouldDelegateToProjectContext() {
         String name = "name";
         String configurationName = "configurationName";
         Configuration configuration = mock(Configuration.class);
@@ -276,10 +274,22 @@ class VariantContextTest {
     }
 
     @Test
-    void getVariantNameShouldDelegateToVariantContext() {
+    void containsSourceSetShouldReturnTrueWhenInSourceSets() {
         String name = "name";
-        when(variant.getName()).thenReturn(name);
+        SourceProvider provider = mock(SourceProvider.class);
+        when(provider.getName()).thenReturn(name);
+        when(variant.getSourceSets()).thenReturn(singletonList(provider));
 
-        assertEquals(name, context.getVariantName());
+        assertTrue(context.containsSourceSet(name));
+    }
+
+    @Test
+    void containsSourceSetShouldReturnFalseWhenNotInSourceSets() {
+        String name = "name";
+        SourceProvider provider = mock(SourceProvider.class);
+        when(provider.getName()).thenReturn("not" + name);
+        when(variant.getSourceSets()).thenReturn(singletonList(provider));
+
+        assertFalse(context.containsSourceSet(name));
     }
 }

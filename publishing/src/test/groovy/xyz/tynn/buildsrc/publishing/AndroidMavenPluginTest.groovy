@@ -50,7 +50,7 @@ class AndroidMavenPluginTest {
 
             apply plugin: 'com.android.library'
             android {
-                compileSdkVersion = 29
+                compileSdkVersion = 31
                 flavorDimensions 'app', 'env'
                 productFlavors {
                     open { dimension 'app' }

@@ -3,6 +3,11 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.external.javadoc.StandardJavadocDocletOptions;
 import org.junit.jupiter.api.Test;
@@ -12,11 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
-
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JavadocTaskTest {
@@ -32,8 +32,7 @@ class JavadocTaskTest {
 
     @Test
     void executeShouldAddBootClasspath() {
-        when(javadoc.getProject().getBuildDir()).thenReturn(new File(""));
-        when(context.getDirName()).thenReturn("");
+        when(context.getOutputDirectory()).thenReturn(new File(""));
 
         task.execute(javadoc);
 
@@ -44,8 +43,7 @@ class JavadocTaskTest {
     void executeShouldLinkAndroidDocumentation() {
         StandardJavadocDocletOptions options = mock(StandardJavadocDocletOptions.class);
         when(javadoc.getOptions()).thenReturn(options);
-        when(javadoc.getProject().getBuildDir()).thenReturn(new File(""));
-        when(context.getDirName()).thenReturn("");
+        when(context.getOutputDirectory()).thenReturn(new File(""));
 
         task.execute(javadoc);
 
@@ -54,20 +52,17 @@ class JavadocTaskTest {
 
     @Test
     void executeShouldSetDestinationDir() {
-        String dirName = "dirName";
-        File buildDir = new File("buildDir");
-        when(javadoc.getProject().getBuildDir()).thenReturn(buildDir);
-        when(context.getDirName()).thenReturn(dirName);
+        File outputDirectory = new File("buildDir");
+        when(context.getOutputDirectory()).thenReturn(outputDirectory);
 
         task.execute(javadoc);
 
-        verify(javadoc).setDestinationDir(new File(buildDir, dirName));
+        verify(javadoc).setDestinationDir(outputDirectory);
     }
 
     @Test
     void executeShouldSetSource() {
-        when(javadoc.getProject().getBuildDir()).thenReturn(new File(""));
-        when(context.getDirName()).thenReturn("");
+        when(context.getOutputDirectory()).thenReturn(new File(""));
 
         task.execute(javadoc);
 

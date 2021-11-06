@@ -48,13 +48,6 @@ class VariantAttributesTest {
     }
 
     @Test
-    void executeShouldSetVariantAttribute() {
-        attributes.execute(attributeContainer);
-
-        verify(context).setVariantAttribute(attributeContainer);
-    }
-
-    @Test
     void executeShouldSetExternalBundlingAttribute() {
         attributes.execute(attributeContainer);
 

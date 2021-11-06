@@ -6,34 +6,19 @@ package xyz.tynn.buildsrc.publishing
 import groovy.transform.PackageScope
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 import java.util.zip.ZipFile
 
-import static com.android.builder.model.AndroidProject.FD_OUTPUTS
-import static kotlin.KotlinVersion.CURRENT
 import static org.gradle.testkit.runner.GradleRunner.create
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
-import static org.junit.jupiter.params.provider.Arguments.arguments
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class AndroidSourcesPluginFuncTest {
-
-    static def gradleVersions = [
-//            '5.6.4',
-//            '6.0.1',
-//            '6.1.1',
-            '6.2.2',
-            '6.3',
-            '6.4',
-    ]
-    static def androidVersions = [
-            '3.6.+': gradleVersions,
-            '4.0.+': gradleVersions,
-            '4.1.+': gradleVersions[2..-1],
-    ]
 
     @TempDir
     @PackageScope
@@ -49,28 +34,29 @@ class AndroidSourcesPluginFuncTest {
         buildFile = new File(projectDir, 'build.gradle')
         buildFile << """
             buildscript {
-                ext.hasKotlin = project.findProperty('hasKotlin')
+                ext.kotlinVersion = project.findProperty('kotlinVersion')
                 repositories {
                     google()
-                    jcenter()
+                    mavenCentral()
                 }
                 dependencies {
                     ${classpath.join('\n')}
                     classpath "com.android.tools.build:gradle:\$androidVersion"
-                    if (hasKotlin)
-                        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:$CURRENT'
+                    if (kotlinVersion)
+                        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:\$kotlinVersion"
                 }
             }
 
             repositories {
                 google()
-                jcenter()
+                mavenCentral()
             }
 
             apply plugin: 'xyz.tynn.android.sources'
             
             plugins.withId('com.android.library') {
-                if (hasKotlin) project.apply plugin: 'kotlin-android'
+                if (kotlinVersion)
+                    project.apply plugin: 'kotlin-android'
             }
 
             group = 'com.example.test'
@@ -87,20 +73,19 @@ class AndroidSourcesPluginFuncTest {
         new File(projectDir, 'src/main/AndroidManifest.xml') << '<manifest package="com.example.test"/>'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provide")
     @DisplayName('build should create all Android sources JARs')
-    void shouldBuildAndroidSourcesJars(g, a, hasKotlin) {
+    void shouldBuildAndroidSourcesJars(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
             }
         """
 
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         'build',
                         '-xlint',
@@ -111,21 +96,20 @@ class AndroidSourcesPluginFuncTest {
         assert result.task(':releaseSourcesJar').outcome == SUCCESS
         assert result.task(':build').outcome == SUCCESS
 
-        assertSources hasKotlin, projectDir, 'debug'
-        assertSources hasKotlin, projectDir, 'release'
+        assertSources !k, projectDir, 'debug'
+        assertSources !k, projectDir, 'release'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provide")
     @DisplayName('publishToMavenLocal should publish all Android sources JARs')
-    void shouldPublishAndroidSourcesJars(g, a, hasKotlin) {
+    void shouldPublishAndroidSourcesJars(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
             apply plugin: 'maven-publish'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
             }
 
             afterEvaluate {
@@ -148,9 +132,9 @@ class AndroidSourcesPluginFuncTest {
             }
         """
 
-        def version = "$a$g+$hasKotlin"
+        def version = "$a$g+$k"
         def mavenLocal = new File("$projectDir/m2/repository")
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         "-Dmaven.repo.local=$mavenLocal",
                         'publishToMavenLocal',
@@ -164,52 +148,41 @@ class AndroidSourcesPluginFuncTest {
 
         def mavenGroup = new File(mavenLocal, 'com/example/test')
 
-        assertSources hasKotlin, mavenGroup, 'android', version, 'debug'
-        assertSources hasKotlin, mavenGroup, 'android', version, 'release'
-        assertSources hasKotlin, mavenGroup, 'debug', version
-        assertSources hasKotlin, mavenGroup, 'release', version
+        assertSources !k, mavenGroup, 'android', version, 'debug'
+        assertSources !k, mavenGroup, 'android', version, 'release'
+        assertSources !k, mavenGroup, 'debug', version
+        assertSources !k, mavenGroup, 'release', version
     }
 
-    def prepareGradleRunner(gradleVersion, androidVersion, hasKotlin) {
+    def prepareGradleRunner(androidVersion, gradleVersion, kotlinVersion) {
         new File(projectDir, 'gradle.properties') << """
             androidVersion=$androidVersion
-            ${hasKotlin ? 'hasKotlin' : 'javaOnly'}=true
+            ${kotlinVersion ? "kotlinVersion=$kotlinVersion" : 'javaOnly=true'}
         """
         return create()
                 .withProjectDir(projectDir)
                 .withGradleVersion(gradleVersion)
     }
 
-    static assertSources(hasKotlin, project, variant) {
+    static assertSources(javaOnly, project, variant) {
         def name = "$project.name-${variant}.jar"
-        assertSources hasKotlin, new File(project, "build/$FD_OUTPUTS/sources/$name")
+        assertSources javaOnly, new File(project, "build/outputs/sources/$name")
     }
 
-    static assertSources(hasKotlin, group, artifactId, version, variant = null) {
+    static assertSources(javaOnly, group, artifactId, version, variant = null) {
         def name = "$artifactId-$version-${variant ? "$variant-sources" : 'sources'}.jar"
-        assertSources hasKotlin, new File(group, "$artifactId/$version/$name")
+        assertSources javaOnly, new File(group, "$artifactId/$version/$name")
     }
 
-    static assertSources(hasKotlin, artifact) {
+    static assertSources(javaOnly, artifact) {
         assert artifact.exists()
         new ZipFile(artifact).with {
             assert entries().findAll {
                 it.name =~ /(Main|Debug|Release)Example.java$/
             }.size() == 2
-            assert !hasKotlin || entries().findAll {
+            assert javaOnly || entries().findAll {
                 it.name =~ /(Main|Debug|Release)Example.kt$/
             }.size() == 2
-        }
-    }
-
-    static gradleAndAndroidVersions() {
-        androidVersions.collectMany { a, gradleVersions ->
-            gradleVersions.collectMany { g ->
-                [
-                        arguments(g, a, true),
-                        arguments(g, a, false),
-                ]
-            }
         }
     }
 }

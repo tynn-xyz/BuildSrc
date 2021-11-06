@@ -6,41 +6,25 @@ package xyz.tynn.buildsrc.publishing
 import groovy.transform.PackageScope
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 import java.util.zip.ZipFile
 
-import static com.android.builder.model.AndroidProject.FD_OUTPUTS
-import static kotlin.KotlinVersion.CURRENT
 import static org.gradle.testkit.runner.GradleRunner.create
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
-import static org.junit.jupiter.params.provider.Arguments.arguments
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class AndroidJavadocPluginFuncTest {
-
-    static def gradleVersions = [
-//            '5.6.4',
-//            '6.0.1',
-//            '6.1.1',
-            '6.2.2',
-            '6.3',
-            '6.4',
-    ]
-    static def androidVersions = [
-            '3.6.+': gradleVersions,
-            '4.0.+': gradleVersions,
-            '4.1.+': gradleVersions[2..-1],
-    ]
 
     @TempDir
     @PackageScope
     File projectDir
 
     File buildFile
-
 
     @BeforeEach
     void setup() {
@@ -50,28 +34,29 @@ class AndroidJavadocPluginFuncTest {
         buildFile = new File(projectDir, 'build.gradle')
         buildFile << """
             buildscript {
-                ext.hasKotlin = project.findProperty('hasKotlin')
+                ext.kotlinVersion = project.findProperty('kotlinVersion')
                 repositories {
                     google()
-                    jcenter()
+                    mavenCentral()
                 }
                 dependencies {
                     ${classpath.join('\n')}
                     classpath "com.android.tools.build:gradle:\$androidVersion"
-                    if (hasKotlin)
-                        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:$CURRENT'
+                    if (kotlinVersion)
+                        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:\$kotlinVersion"
                 }
             }
 
             repositories {
                 google()
-                jcenter()
+                mavenCentral()
             }
 
             apply plugin: 'xyz.tynn.android.javadoc'
             
             plugins.withId('com.android.library') {
-                if (hasKotlin) project.apply plugin: 'kotlin-android'
+                if (kotlinVersion)
+                    project.apply plugin: 'kotlin-android'
             }
 
             group = 'com.example.test'
@@ -96,20 +81,19 @@ class AndroidJavadocPluginFuncTest {
         new File(projectDir, 'src/main/AndroidManifest.xml') << '<manifest package="com.example.test"/>'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provide")
     @DisplayName('build should create all Android javadoc JARs')
-    void shouldBuildAndroidJavadocJars(g, a, hasKotlin) {
+    void shouldBuildAndroidJavadocJars(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
             }
         """
 
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         'build',
                         '-xlint',
@@ -126,17 +110,16 @@ class AndroidJavadocPluginFuncTest {
         assertJavadoc projectDir, 'release'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provide")
     @DisplayName('publishToMavenLocal should publish all Android javadoc JARs')
-    void shouldPublishAndroidJavadocJars(g, a, hasKotlin) {
+    void shouldPublishAndroidJavadocJars(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
             apply plugin: 'maven-publish'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
             }
 
             afterEvaluate {
@@ -159,9 +142,9 @@ class AndroidJavadocPluginFuncTest {
             }
         """
 
-        def version = "$a$g+$hasKotlin"
+        def version = "$a$g+$k"
         def mavenLocal = new File("$projectDir/m2/repository")
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         "-Dmaven.repo.local=$mavenLocal",
                         'publishToMavenLocal',
@@ -183,10 +166,10 @@ class AndroidJavadocPluginFuncTest {
         assertJavadoc mavenGroup, 'release', version
     }
 
-    def prepareGradleRunner(gradleVersion, androidVersion, hasKotlin) {
+    def prepareGradleRunner(androidVersion, gradleVersion, kotlinVersion) {
         new File(projectDir, 'gradle.properties') << """
             androidVersion=$androidVersion
-            ${hasKotlin ? 'hasKotlin' : 'javaOnly'}=true
+            ${kotlinVersion ? "kotlinVersion=$kotlinVersion" : 'javaOnly=true'}
         """
         return create()
                 .withProjectDir(projectDir)
@@ -195,7 +178,7 @@ class AndroidJavadocPluginFuncTest {
 
     static assertJavadoc(project, variant) {
         def name = "$project.name-${variant}.jar"
-        assertJavadoc new File(project, "build/$FD_OUTPUTS/javadoc/$name")
+        assertJavadoc new File(project, "build/outputs/javadoc/$name")
     }
 
     static assertJavadoc(group, artifactId, version, variant = null) {
@@ -217,17 +200,6 @@ class AndroidJavadocPluginFuncTest {
                 getInputStream(it).filterLine {
                     it.contains('https://developer.android.com/reference/')
                 }.toString()
-            }
-        }
-    }
-
-    static gradleAndAndroidVersions() {
-        androidVersions.collectMany { a, gradleVersions ->
-            gradleVersions.collectMany { g ->
-                [
-                        arguments(g, a, true),
-                        arguments(g, a, false),
-                ]
             }
         }
     }

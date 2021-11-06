@@ -56,7 +56,7 @@ class FixIdeaPluginTest {
 
                 android {
                     defaultConfig {
-                        compileSdkVersion 29
+                        compileSdkVersion 31
                     }
                 }
 
@@ -78,7 +78,7 @@ class FixIdeaPluginTest {
 
                 android {
                     defaultConfig {
-                        compileSdkVersion 29
+                        compileSdkVersion 31
                     }
 
                     buildTypes {

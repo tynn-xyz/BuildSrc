@@ -3,25 +3,36 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.gradle.api.Action;
 import org.jetbrains.dokka.gradle.DokkaTask;
+import org.jetbrains.dokka.gradle.GradleDokkaSourceSetBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
 
-import static java.util.Collections.singletonList;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class KdocTaskTest {
 
+    @Captor
+    ArgumentCaptor<Action<GradleDokkaSourceSetBuilder>> action;
+
     @Mock(answer = RETURNS_DEEP_STUBS)
     DokkaTask dokka;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    GradleDokkaSourceSetBuilder builder;
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     TaskContext context;
@@ -30,36 +41,36 @@ class KdocTaskTest {
     KdocTask task;
 
     @Test
-    void executeShouldSetAndroidVariants() {
-        String name = "name";
-        when(context.getVariantName()).thenReturn(name);
-        when(context.getDirName()).thenReturn("");
-        when(dokka.getProject().getBuildDir()).thenReturn(new File(""));
+    void executeShouldKeepVariantSourceSets() {
+        when(context.getOutputDirectory()).thenReturn(new File(""));
+        when(context.containsSourceSet(any())).thenReturn(true);
 
         task.execute(dokka);
 
-        verify(dokka.getConfiguration()).setAndroidVariants(singletonList(name));
+        verify(dokka.getDokkaSourceSets()).all(action.capture());
+        action.getValue().execute(builder);
+        verify(builder.getSuppress(), never()).set(true);
     }
 
     @Test
-    void executeShouldSetOutputFormat() {
-        when(context.getDirName()).thenReturn("");
-        when(dokka.getProject().getBuildDir()).thenReturn(new File(""));
+    void executeShouldSuppressNonVariantSourceSets() {
+        when(context.getOutputDirectory()).thenReturn(new File(""));
+        when(context.containsSourceSet(any())).thenReturn(false);
 
         task.execute(dokka);
 
-        verify(dokka).setOutputFormat("html");
+        verify(dokka.getDokkaSourceSets()).all(action.capture());
+        action.getValue().execute(builder);
+        verify(builder.getSuppress()).set(true);
     }
 
     @Test
     void executeShouldSetOutputDirectory() {
-        String dirName = "dirName";
-        File buildDir = new File("buildDir");
-        when(context.getDirName()).thenReturn(dirName);
-        when(dokka.getProject().getBuildDir()).thenReturn(buildDir);
+        File outputDirectory = new File("outputDirectory");
+        when(context.getOutputDirectory()).thenReturn(outputDirectory);
 
         task.execute(dokka);
 
-        verify(dokka).setOutputDirectory(new File(buildDir, dirName).getAbsolutePath());
+        verify(dokka.getOutputDirectory()).set(outputDirectory);
     }
 }

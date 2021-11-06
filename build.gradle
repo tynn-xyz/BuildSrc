@@ -1,12 +1,6 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-}
-
 plugins {
-    id 'com.gradle.plugin-publish' version '0.10.1' apply false
-    id 'org.jetbrains.gradle.plugin.idea-ext' version '0.7'
+    id 'com.gradle.plugin-publish' version '0.17.0' apply false
+    id 'org.gradle.test-retry' version '1.3.1' apply false
 }
 
 apply from: 'deps.gradle'
@@ -15,11 +9,13 @@ subprojects {
     group = 'xyz.tynn.buildsrc'
 
     repositories {
+        gradlePluginPortal()
         mavenCentral()
     }
 
     plugins.withId('java-gradle-plugin') {
         project.apply plugin: 'com.gradle.plugin-publish'
+        project.apply plugin: 'org.gradle.test-retry'
 
         pluginBundle {
             website = 'https://github.com/tynn-xyz/BuildSrc/blob/master/README.md'
@@ -30,13 +26,12 @@ subprojects {
             dependsOn tasks.pluginUnderTestMetadata
         }
 
-        idea.project.settings {
-            idea.project.settings {
-                delegateActions {
-                    //noinspection UnnecessaryQualifiedReference
-                    testRunner = org.jetbrains.gradle.ext.ActionDelegationConfig.TestRunner.GRADLE
-                    delegateBuildRunToGradle = true
-                }
+        test {
+            forkEvery 5
+            retry {
+                maxFailures = 33
+                maxRetries = 3
+                failOnPassedAfterRetry = false
             }
         }
     }

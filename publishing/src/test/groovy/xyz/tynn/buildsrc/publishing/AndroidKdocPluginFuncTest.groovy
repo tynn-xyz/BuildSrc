@@ -6,41 +6,25 @@ package xyz.tynn.buildsrc.publishing
 import groovy.transform.PackageScope
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
 import java.util.zip.ZipFile
 
-import static com.android.builder.model.AndroidProject.FD_OUTPUTS
-import static kotlin.KotlinVersion.CURRENT
 import static org.gradle.testkit.runner.GradleRunner.create
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import static org.gradle.testkit.runner.internal.PluginUnderTestMetadataReading.readImplementationClasspath
-import static org.junit.jupiter.params.provider.Arguments.arguments
 
+@DisabledIfEnvironmentVariable(named = "CI", matches = "true")
 class AndroidKdocPluginFuncTest {
-
-    static def gradleVersions = [
-//            '5.6.4',
-//            '6.0.1',
-//            '6.1.1',
-            '6.2.2',
-            '6.3',
-            '6.4',
-    ]
-    static def androidVersions = [
-            '3.6.+': gradleVersions,
-            '4.0.+': gradleVersions,
-            '4.1.+': gradleVersions[2..-1],
-    ]
 
     @TempDir
     @PackageScope
     File projectDir
 
     File buildFile
-
 
     @BeforeEach
     void setup() {
@@ -50,29 +34,29 @@ class AndroidKdocPluginFuncTest {
         buildFile = new File(projectDir, 'build.gradle')
         buildFile << """
             buildscript {
-                ext.hasKotlin = project.findProperty('hasKotlin')
                 repositories {
                     google()
-                    jcenter()
+                    mavenCentral()
+                    gradlePluginPortal()
                 }
                 dependencies {
                     ${classpath.join('\n')}
                     classpath "com.android.tools.build:gradle:\$androidVersion"
-                    classpath 'org.jetbrains.dokka:dokka-gradle-plugin:0.10.1'
-                    if (hasKotlin)
-                        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:$CURRENT'
+                    classpath "org.jetbrains.dokka:dokka-gradle-plugin:\$kotlinVersion"
+                    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:\$kotlinVersion"
                 }
             }
 
             repositories {
                 google()
-                jcenter()
+                mavenCentral()
+                gradlePluginPortal()
             }
 
             apply plugin: 'xyz.tynn.android.kdoc'
             
             plugins.withId('com.android.library') {
-                if (hasKotlin) project.apply plugin: 'kotlin-android'
+                project.apply plugin: 'kotlin-android'
             }
 
             group = 'com.example.test'
@@ -97,20 +81,19 @@ class AndroidKdocPluginFuncTest {
         new File(projectDir, 'src/main/AndroidManifest.xml') << '<manifest package="com.example.test"/>'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provideKotlinOnly")
     @DisplayName('build should create all Android KDoc JARs')
-    void shouldBuildAndroidKdocJars(g, a, hasKotlin) {
+    void shouldBuildAndroidKdocJars(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
             }
         """
 
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         'build',
                         '-xlint',
@@ -127,17 +110,16 @@ class AndroidKdocPluginFuncTest {
         assertKdoc projectDir, 'release'
     }
 
-    @ParameterizedTest(name = "Gradle={0} Android={1} Kotlin={2}")
-    @MethodSource("gradleAndAndroidVersions")
+    @ParameterizedTest(name = "Android={0} Gradle={1} Kotlin={2}")
+    @MethodSource("xyz.tynn.buildsrc.publishing.AndroidGradleVersions#provideKotlinOnly")
     @DisplayName('publishToMavenLocal should publish all Android KDoc JARs')
-    void shouldPublishAndroidKdocJars(g, a, hasKotlin) {
+    void shouldPublishAndroidKdocJars(a, g, k) {
         buildFile << """
             apply plugin: 'com.android.library'
             apply plugin: 'maven-publish'
 
             android {
-                compileSdkVersion 29
-                buildToolsVersion '29.0.2'
+                compileSdkVersion 31
             }
 
             afterEvaluate {
@@ -160,9 +142,9 @@ class AndroidKdocPluginFuncTest {
             }
         """
 
-        def version = "$a$g+$hasKotlin"
+        def version = "$a$g+true"
         def mavenLocal = new File("$projectDir/m2/repository")
-        def result = prepareGradleRunner(g, a, hasKotlin)
+        def result = prepareGradleRunner(a, g, k)
                 .withArguments(
                         "-Dmaven.repo.local=$mavenLocal",
                         'publishToMavenLocal',
@@ -184,10 +166,10 @@ class AndroidKdocPluginFuncTest {
         assertKdoc mavenGroup, 'release', version
     }
 
-    def prepareGradleRunner(gradleVersion, androidVersion, hasKotlin) {
+    def prepareGradleRunner(androidVersion, gradleVersion, kotlinVersion) {
         new File(projectDir, 'gradle.properties') << """
             androidVersion=$androidVersion
-            ${hasKotlin ? 'hasKotlin' : 'javaOnly'}=true
+            kotlinVersion=$kotlinVersion
         """
         return create()
                 .withProjectDir(projectDir)
@@ -196,7 +178,7 @@ class AndroidKdocPluginFuncTest {
 
     static assertKdoc(project, variant) {
         def name = "$project.name-${variant}.jar"
-        assertKdoc new File(project, "build/$FD_OUTPUTS/kdoc/$name")
+        assertKdoc new File(project, "build/outputs/kdoc/$name")
     }
 
     static assertKdoc(group, artifactId, version, variant = null) {
@@ -207,9 +189,12 @@ class AndroidKdocPluginFuncTest {
     static assertKdoc(artifact) {
         assert artifact.exists()
         new ZipFile(artifact).with {
-            assert entries().findAll {
-                it.name =~ /^[^\/]+\/index(-outline)?.html$/
-            }.size() == 2
+            entries().each {
+                println it
+            }
+            assert entries().find {
+                it.name =~ /^[^\/]+\/com.example.test\/index.html$/
+            }
             assert entries().find {
                 it.name =~ /global-ext-function.html$/
             }
@@ -221,14 +206,6 @@ class AndroidKdocPluginFuncTest {
                 getInputStream(it).filterLine {
                     it.contains('https://developer.android.com/reference/')
                 }.toString()
-            }
-        }
-    }
-
-    static gradleAndAndroidVersions() {
-        androidVersions.collectMany { a, gradleVersions ->
-            gradleVersions.collect { g ->
-                arguments g, a, true
             }
         }
     }

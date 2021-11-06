@@ -1,9 +1,10 @@
 plugins {
     id 'groovy'
     id 'java-gradle-plugin'
+    id 'org.gradle.kotlin.kotlin-dsl' version '2.1.7'
 }
 
-version = '0.1.0'
+version = '0.2.0'
 
 gradlePlugin {
     plugins {
@@ -24,14 +25,10 @@ pluginBundle {
     }
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
     testImplementation deps.junit.api
     testImplementation deps.junit.params
 
     testRuntimeOnly deps.junit.engine
-    testRuntimeOnly deps.plugins.dokka
+    testRuntimeOnly deps.kotlin.dokka
 }

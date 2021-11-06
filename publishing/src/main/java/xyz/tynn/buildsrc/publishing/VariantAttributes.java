@@ -20,7 +20,6 @@ final class VariantAttributes extends ArtifactAttributes {
     public void execute(@Nonnull AttributeContainer attributes) {
         super.execute(attributes);
         context.setBuildTypeAttribute(attributes);
-        context.setVariantAttribute(attributes);
         context.setProductFlavorAttributes(attributes);
     }
 }

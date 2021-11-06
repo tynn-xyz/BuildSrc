@@ -1,6 +1,6 @@
 BuildSrc
 ========
-[![Build][travis-badge]][travis]
+[![Build][build-badge]][build]
 
 Convenience build tool extensions for _Gradle_ - _Kotlin_ and _Android_
 
@@ -54,7 +54,7 @@ and _Kotlin_ variant KDoc artifact. This artifact is added to the _java_
 component when requested with `withKdocJar`. This plugin uses [dokka] and
 requires it in the build classpath only.
 
-    id 'org.jetbrains.dokka' version '0.10.1'
+    id 'org.jetbrains.dokka' version '1.5.31'
     id 'xyz.tynn.jvm.kdoc' version 'x.y.z'
 
 ##### Usage
@@ -132,7 +132,7 @@ artifacts. These artifacts are added to the components provided with the
 _Gradle_ plugin. This plugin uses [dokka] and requires it in the build
 classpath only.
 
-    id 'org.jetbrains.dokka' version '0.10.1' apply false
+    id 'org.jetbrains.dokka' version '1.5.31' apply false
     id 'xyz.tynn.android.kdoc' version 'x.y.z'
 
 ##### Task and Configuration naming
@@ -161,7 +161,7 @@ artifacts. These artifacts are added to the components provided with the
 License
 -------
 
-    Copyright (C) 2019-2020 Christian Schmitz
+    Copyright (C) 2019-2021 Christian Schmitz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -193,5 +193,5 @@ License
   [maven-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/maven/xyz.tynn.android.maven.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
   [sources]: https://plugins.gradle.org/plugin/xyz.tynn.android.sources
   [sources-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/android/sources/xyz.tynn.android.sources.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
-  [travis]: https://travis-ci.com/tynn-xyz/BuildSrc
-  [travis-badge]: https://img.shields.io/travis/com/tynn-xyz/BuildSrc.svg?label=Build&logo=travis-ci&logoColor=white
+  [build]: https://github.com/tynn-xyz/BuildSrc/actions
+  [build-badge]: https://img.shields.io/github/workflow/status/tynn-xyz/BuildSrc/Build?label=Build&logo=github&logoColor=F5F5F5

@@ -3,6 +3,19 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.gradle.api.attributes.Attribute.of;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static java.lang.String.valueOf;
+
 import com.android.build.gradle.LibraryExtension;
 import com.android.build.gradle.LibraryPlugin;
 
@@ -20,7 +33,6 @@ import org.gradle.api.attributes.AttributeContainer;
 import org.gradle.api.component.AdhocComponentWithVariants;
 import org.gradle.api.component.SoftwareComponentFactory;
 import org.gradle.api.publish.PublishingExtension;
-import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin;
 import org.gradle.api.publish.maven.MavenPublication;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.jvm.tasks.Jar;
@@ -32,18 +44,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static java.lang.String.valueOf;
-import static org.gradle.api.attributes.Attribute.of;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentCaptor.forClass;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.io.File;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -57,9 +58,9 @@ class ProjectContextTest {
 
     @Test
     void applyPluginShouldApplyPlugin() {
-        context.applyPlugin(IvyPublishPlugin.class);
+        context.applyPlugin("ivy-publish");
 
-        verify(project.getPluginManager()).apply(IvyPublishPlugin.class);
+        verify(project.getPluginManager()).apply("ivy-publish");
     }
 
     @Test
@@ -82,6 +83,14 @@ class ProjectContextTest {
         context.setAttribute(attributes, key, name);
 
         verify(attributes).attribute(key, value);
+    }
+
+    @Test
+    void getBuildDirShouldGetBuildDir() {
+        File buildDir = new File("path/to/build/dir");
+        when(project.getBuildDir()).thenReturn(buildDir);
+
+        assertEquals(buildDir, context.getBuildDir());
     }
 
     @Test

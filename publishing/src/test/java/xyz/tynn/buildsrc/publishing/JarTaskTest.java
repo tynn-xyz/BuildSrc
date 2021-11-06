@@ -3,6 +3,10 @@
 
 package xyz.tynn.buildsrc.publishing;
 
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.gradle.jvm.tasks.Jar;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,10 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
-
-import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JarTaskTest {
@@ -33,7 +33,7 @@ class JarTaskTest {
         String classifier = "classifier";
         when(context.getArtifactClassifier()).thenReturn(classifier);
         when(jar.getProject().getBuildDir()).thenReturn(new File(""));
-        when(context.getOutputsDir()).thenReturn("");
+        when(context.getOutputsDir()).thenReturn(new File(""));
 
         task.execute(jar);
 
@@ -42,20 +42,18 @@ class JarTaskTest {
 
     @Test
     void executeShouldSetDestinationDirectory() {
-        String dirName = "dirName";
-        File buildDir = new File("buildDir");
-        when(jar.getProject().getBuildDir()).thenReturn(buildDir);
-        when(context.getOutputsDir()).thenReturn(dirName);
+        File outputsDir = new File("buildDir");
+        when(context.getOutputsDir()).thenReturn(outputsDir);
 
         task.execute(jar);
 
-        verify(jar.getDestinationDirectory()).set(new File(buildDir, dirName));
+        verify(jar.getDestinationDirectory()).set(outputsDir);
     }
 
     @Test
     void executeShouldSetFromVariantSources() {
         when(jar.getProject().getBuildDir()).thenReturn(new File(""));
-        when(context.getOutputsDir()).thenReturn("");
+        when(context.getOutputsDir()).thenReturn(new File(""));
 
         task.execute(jar);
 

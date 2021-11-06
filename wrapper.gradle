@@ -1,5 +1,5 @@
 wrapper {
-    gradleVersion '6.4'
+    gradleVersion '7.2'
     distributionType Wrapper.DistributionType.ALL
 }
 defaultTasks 'wrapper'

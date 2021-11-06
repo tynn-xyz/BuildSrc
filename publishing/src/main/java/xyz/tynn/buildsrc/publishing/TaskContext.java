@@ -51,8 +51,12 @@ final class TaskContext {
         return context.getConfiguration(scope);
     }
 
-    String getDirName() {
-        return scope.getName() + '/' + context.getDirName();
+    File getOutputDirectory() {
+        return new File(context.getBuildDir(scope.getName()), context.getDirName());
+    }
+
+    File getOutputsDir() {
+        return context.getBuildDir(scope.getOutputsDir());
     }
 
     TaskProvider<Jar> getJarProvider() {
@@ -73,10 +77,6 @@ final class TaskContext {
 
     Action<ConfigurationVariantDetails> getMavenMapping() {
         return new MavenMapping(scope.getMavenScope());
-    }
-
-    String getOutputsDir() {
-        return scope.getOutputsDir();
     }
 
     Transformer<PublishArtifact, AbstractArchiveTask> getPublishArtifact() {
@@ -102,7 +102,7 @@ final class TaskContext {
         return new VariantAttributes(context, scope);
     }
 
-    String getVariantName() {
-        return context.getVariantName();
+    boolean containsSourceSet(String name) {
+        return context.containsSourceSet(name);
     }
 }

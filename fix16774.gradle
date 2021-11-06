@@ -1,0 +1,10 @@
+import org.gradle.api.internal.classpath.ModuleRegistry
+
+// see https://github.com/gradle/gradle/issues/16774
+
+dependencies {
+    final toolingApiBuildersJar = services.get(ModuleRegistry)
+            .getModule('gradle-tooling-api-builders')
+            .classpath.asFiles.first()
+    testRuntimeOnly(files(toolingApiBuildersJar))
+}

@@ -3,12 +3,6 @@
 
 package xyz.tynn.buildsrc.publishing;
 
-import org.gradle.api.attributes.DocsType;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static com.android.builder.model.AndroidProject.FD_OUTPUTS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -17,6 +11,12 @@ import static xyz.tynn.buildsrc.publishing.ArtifactScope.KDOC;
 import static xyz.tynn.buildsrc.publishing.ArtifactScope.SOURCES;
 import static xyz.tynn.buildsrc.publishing.MavenScope.COMPILE;
 import static xyz.tynn.buildsrc.publishing.MavenScope.RUNTIME;
+
+import org.gradle.api.attributes.DocsType;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ArtifactScopeTest {
@@ -47,24 +47,24 @@ class ArtifactScopeTest {
     }
 
     @Test
-    void kdcoNameShouldBeKdocDocsType() {
+    void kdocNameShouldBeKdocDocsType() {
         assertEquals("kdoc", KDOC.getName());
     }
 
     @Test
-    void kdcoMavenScopeShouldBeCompile() {
+    void kdocMavenScopeShouldBeCompile() {
         assertEquals(COMPILE, KDOC.getMavenScope());
     }
 
     @Test
-    void kdcoSourcePathShouldBeKdocTask() {
+    void kdocSourcePathShouldBeKdocTask() {
         KDOC.getSourcePath().apply(context);
 
         verify(context).getKdocTask();
     }
 
     @Test
-    void kdcoOutputsDirShouldBeUnderOutputs() {
+    void kdocOutputsDirShouldBeUnderOutputs() {
         assertEquals(FD_OUTPUTS + "/kdoc", KDOC.getOutputsDir());
     }
 

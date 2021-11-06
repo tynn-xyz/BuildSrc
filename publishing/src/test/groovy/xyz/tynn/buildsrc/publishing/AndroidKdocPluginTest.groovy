@@ -48,7 +48,7 @@ class AndroidKdocPluginTest {
             apply plugin: AndroidKdocPlugin
 
             apply plugin: 'com.android.library'
-            android.compileSdkVersion = 29
+            android.compileSdkVersion = 31
 
             evaluate()
 

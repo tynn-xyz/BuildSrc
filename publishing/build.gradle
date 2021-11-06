@@ -3,7 +3,7 @@ plugins {
     id 'java-gradle-plugin'
 }
 
-version = '0.1.2'
+version = '0.2.0'
 
 gradlePlugin {
     plugins {
@@ -35,43 +35,39 @@ pluginBundle {
             displayName = 'Android Library Javadoc'
             description = 'Provide Javadoc JAR for all Android Library software components.'
             tags = ['android', 'java', 'javadoc', 'library', 'publishing']
-            version = '0.1.1'
         }
 
         androidKdoc {
             displayName = 'Android Library Kdoc'
             description = 'Provide KDoc JAR for all Android Library software components.'
             tags = ['android', 'dokka', 'java', 'kdoc', 'kotlin', 'library', 'publishing']
-            version = '0.1.0'
         }
 
         androidMaven {
             displayName = 'Android Library Maven'
             description = 'Provide maven publications for all Android Library release software components.'
             tags = ['android', 'library', 'maven', 'publishing', 'release']
-            version = '0.1.0'
         }
 
         androidSources {
             displayName = 'Android Library Sources'
             description = 'Provide sources JAR for all Android Library software components.'
             tags = ['android', 'java', 'kotlin', 'library', 'publishing', 'sources']
-            version = '0.1.2'
         }
     }
 }
 
 repositories {
     google()
-    jcenter()
 }
 
 dependencies {
-    compileOnly deps.plugins.android
-    compileOnly deps.plugins.kotlin
-    compileOnly deps.plugins.dokka
+    compileOnly deps.android
+    compileOnly deps.kotlin.gradle
+    compileOnly deps.kotlin.dokka
 
     testImplementation configurations.compileOnly
+    testImplementation deps.kotlin.stdlib
 
     testImplementation deps.junit.api
     testImplementation deps.junit.params
@@ -79,4 +75,6 @@ dependencies {
     testImplementation deps.mockito.inline
 
     testRuntimeOnly deps.junit.engine
+
+    apply from: "$rootDir/fix16774.gradle"
 }
