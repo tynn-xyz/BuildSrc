@@ -3,20 +3,17 @@
 
 package xyz.tynn.buildsrc.publishing;
 
-import static kotlin.text.StringsKt.capitalize;
+import static java.lang.Character.toUpperCase;
 
 import com.android.builder.model.BaseConfig;
-
-import java.util.Iterator;
 
 class ZeroUtils {
 
     static String join(Iterable<String> words) {
-        Iterator<String> iter = words.iterator();
-        if (!iter.hasNext()) return "";
-        StringBuilder sb = new StringBuilder(iter.next());
-        while (iter.hasNext())
-            sb.append('-').append(iter.next());
+        StringBuilder sb = new StringBuilder();
+        for (String word : words)
+            if (sb.length() == 0) sb.append(word);
+            else sb.append('-').append(word);
         return sb.toString();
     }
 
@@ -29,8 +26,17 @@ class ZeroUtils {
         if (words.length == 0) return "";
         StringBuilder sb = new StringBuilder();
         for (String word : words)
-            if (sb.isEmpty()) sb.append(word);
-            else sb.append(capitalize(word));
+            if (sb.length() == 0) sb.append(word);
+            else appendCapitalized(sb, word);
         return sb.toString();
+    }
+
+    private static void appendCapitalized(StringBuilder sb, String word) {
+        if (word.isEmpty()) return;
+        char firstChar = toUpperCase(word.charAt(0));
+        sb.append(firstChar);
+        int length = word.length();
+        if (word.length() == 1) return;
+        sb.append(word.subSequence(1, length));
     }
 }

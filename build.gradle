@@ -17,6 +17,8 @@ subprojects {
         project.apply plugin: 'com.gradle.plugin-publish'
         project.apply plugin: 'org.gradle.test-retry'
 
+        sourceCompatibility = 11
+
         pluginBundle {
             website = 'https://github.com/tynn-xyz/BuildSrc/blob/master/README.md'
             vcsUrl = 'https://github.com/tynn-xyz/BuildSrc/'
