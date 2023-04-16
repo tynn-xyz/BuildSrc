@@ -1,0 +1,57 @@
+//  Copyright 2023 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+pluginManager.with {
+    withPlugin('maven-publish') {
+        apply 'signing'
+
+        signing {
+            final signingKey = System.env.SIGNING_KEY
+            final signingPassword = System.env.SIGNING_PASSWORD
+            if (signingKey && signingPassword) {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+                publishing.publications.all { sign it }
+            }
+        }
+
+        publishing {
+            publications {
+                release(MavenPublication) {
+                    afterEvaluate {
+                        from components.release
+                    }
+                    suppressAllPomMetadataWarnings()
+                }
+            }
+
+            publications.all {
+                pom {
+                    name = rootProject.name
+                    url = System.env.PROJECT_URL
+                    scm {
+                        url = System.env.PROJECT_URL
+                    }
+                }
+            }
+        }
+
+        withPlugin('java-platform') {
+            components.ext.release = components.javaPlatform
+        }
+
+        withPlugin('version-catalog') {
+            components.ext.release = components.versionCatalog
+        }
+
+        withPlugin('com.android.library') {
+            android.publishing {
+                if (!hasPlugin('org.jetbrains.kotlin.multiplatform')) {
+                    multipleVariants('release') {
+                        includeBuildTypeValues 'release'
+                        withSourcesJar()
+                    }
+                }
+            }
+        }
+    }
+}

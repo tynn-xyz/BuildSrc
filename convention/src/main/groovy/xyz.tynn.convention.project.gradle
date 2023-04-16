@@ -1,0 +1,55 @@
+//  Copyright 2023 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+if (parent == null) afterEvaluate {
+    try {
+        tasks.register('clean', Delete) {
+            delete rootProject.buildDir
+        }
+    } catch (InvalidUserDataException ignored) {
+    }
+}
+
+pluginManager.withPlugin('wrapper') {
+    tasks.named('wrapper') {
+        distributionType Wrapper.DistributionType.ALL
+    }
+}
+
+allprojects {
+    pluginManager.with {
+        withPlugin('maven-publish') {
+            apply 'xyz.tynn.convention.release'
+        }
+        withPlugin('com.android.application') {
+            apply 'xyz.tynn.convention.android'
+        }
+        withPlugin('com.android.library') {
+            apply 'xyz.tynn.convention.android'
+        }
+    }
+
+    pluginManager.withPlugin('com.github.ben-manes.versions') {
+        tasks.named('dependencyUpdates') {
+            gradleReleaseChannel = 'current'
+            def isNonStable = { version ->
+                ['alpha', 'beta', 'dev', 'rc', 'cr', 'm', 'preview', 'b', 'ea', 'eap'].any {
+                    version ==~ /(?i).*[.-]${it}[.\d-+]*.*/
+                }
+            }
+            rejectVersionIf {
+                isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
+            }
+        }
+    }
+
+    tasks.withType(Test).configureEach {
+        testLogging {
+            events "failed"
+            exceptionFormat "full"
+            showCauses true
+            showExceptions true
+            showStackTraces true
+        }
+    }
+}

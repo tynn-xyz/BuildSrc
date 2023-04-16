@@ -1,0 +1,47 @@
+import com.gradle.publish.PublishTask
+
+plugins {
+    alias libs.plugins.gradle.publish apply false
+}
+
+allprojects {
+    group = 'xyz.tynn.buildsrc'
+}
+
+subprojects {
+    pluginManager.withPlugin(libs.plugins.gradle.publish.get().pluginId) {
+        java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+        gradlePlugin {
+            website = 'https://github.com/tynn-xyz/BuildSrc'
+            vcsUrl = 'https://github.com/tynn-xyz/BuildSrc'
+        }
+
+        tasks.withType(PublishTask).configureEach {
+            final hiddenPlugins = objects.domainObjectSet(PluginDeclaration)
+            hiddenPlugins.addAllLater providers.provider {
+                gradlePlugin.plugins.matching {
+                    it.with { !displayName || !description || !tags }
+                }
+            }
+            doFirst { gradlePlugin.plugins.removeAll hiddenPlugins }
+            doLast { gradlePlugin.plugins.addAll hiddenPlugins }
+        }
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+        testLogging {
+            events "failed"
+            exceptionFormat "full"
+            showCauses true
+            showExceptions true
+            showStackTraces true
+        }
+    }
+}
+
+tasks.named('wrapper') {
+    gradleVersion '8.1'
+    distributionType Wrapper.DistributionType.ALL
+}

@@ -1,0 +1,58 @@
+//  Copyright 2023 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+int intPropertyOrDefault(String propertyName, int defaultValue) {
+    final property = findProperty(propertyName)
+    if (property != null) try {
+        return property.toInteger()
+    } catch (NumberFormatException ignored) {
+        logger.warn('Ignoring invalid int property \'{}={}\'', propertyName, property)
+    } catch (Throwable ignored) {
+        logger.error('Invalid int property \'{}={}\'', propertyName, property)
+        throw new InvalidUserDataException('faild to get int from %s'.format(propertyName))
+    }
+    defaultValue
+}
+
+android {
+    compileSdk 33
+    namespace "${group}.${name}"
+
+    defaultConfig {
+        targetSdk 33
+        minSdk intPropertyOrDefault('android.defaults.sdk.min', 24)
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+    }
+
+    lint {
+        abortOnError true
+        warningsAsErrors true
+    }
+
+    if (pluginManager.hasPlugin('com.android.application')) {
+        buildTypes {
+            debug {
+                applicationIdSuffix '.debug'
+                versionNameSuffix '+debug'
+            }
+
+            release {
+                minifyEnabled true
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+                signingConfig signingConfigs.debug
+            }
+        }
+    }
+
+    pluginManager.withPlugin('org.jetbrains.kotlin.android') {
+        kotlinOptions {
+            afterEvaluate {
+                kotlin.explicitApi?.with {
+                    freeCompilerArgs += toCompilerArg()
+                }
+            }
+        }
+    }
+
+    jacoco.version '0.8.9'
+}

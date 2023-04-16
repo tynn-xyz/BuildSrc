@@ -1,0 +1,14 @@
+//  Copyright 2023 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+plugins {
+    id 'java-platform'
+}
+
+final bom = project
+rootProject.allprojects {
+    if (project != bom) pluginManager.withPlugin('maven-publish') {
+        bom.dependencies.constraints { api project }
+        dependencies { api platform(bom) }
+    }
+}

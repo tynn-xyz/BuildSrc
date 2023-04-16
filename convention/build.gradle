@@ -1,0 +1,23 @@
+plugins {
+    alias libs.plugins.gradle.publish
+    id 'groovy-gradle-plugin'
+}
+
+gradlePlugin {
+    afterEvaluate {
+        plugins {
+            named('xyz.tynn.convention.project') {
+                displayName = 'Project convention plugin'
+                description = 'Configures all Android modules, the Maven release and the Versions plugin'
+                tags.set(['android', 'convention', 'release', 'versions', 'wrapper'])
+            }
+        }
+    }
+}
+
+dependencies {
+    testRuntimeOnly libs.junit.engine
+    testImplementation libs.bundles.junit
+
+    testRuntimeOnly libs.bundles.plugins.convention
+}
