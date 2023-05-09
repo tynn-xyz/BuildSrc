@@ -85,6 +85,16 @@ DSL variants.
         explicitApi()
     }
 
+### Kotlin convention
+
+    plugins {
+        id 'xyz.tynn.convention.release'
+    }
+
+Configures a _Kotlin_ project and provides a marker plugin to simplify
+further configurations. It adds an implementation dependency to the Stdlib
+and a test implementation dependency Kotlin Test.
+
 ### Release convention
 
     plugins {
@@ -99,6 +109,7 @@ environment variables are provided.
 
 #### Supported project structures
 
+ * `java`
  * `java-platform`
  * `version-catalog`
  * `com.android.library`

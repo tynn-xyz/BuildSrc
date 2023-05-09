@@ -145,6 +145,35 @@ class XyzTynnConventionProjectPluginTest {
     }
 
     @Nested
+    @DisplayName('with org.jetbrains.kotlin.android')
+    class OnKotlinAndroid {
+
+        @ParameterizedTest
+        @ValueSource(strings = ['rootProject', 'subProject'])
+        void 'should apply XyzTynnConventionKotlinPlugin'(project) {
+            this."$project".with {
+                apply plugin: 'com.android.library'
+                apply plugin: 'org.jetbrains.kotlin.android'
+                assert plugins.hasPlugin(XyzTynnConventionKotlinPlugin)
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName('with org.jetbrains.kotlin.jvm')
+    class OnKotlinJvm {
+
+        @ParameterizedTest
+        @ValueSource(strings = ['rootProject', 'subProject'])
+        void 'should apply XyzTynnConventionKotlinPlugin'(project) {
+            this."$project".with {
+                apply plugin: 'org.jetbrains.kotlin.jvm'
+                assert plugins.hasPlugin(XyzTynnConventionKotlinPlugin)
+            }
+        }
+    }
+
+    @Nested
     @DisplayName('with com.github.ben-manes.versions')
     class OnVersions {
 

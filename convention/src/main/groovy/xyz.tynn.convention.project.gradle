@@ -27,6 +27,12 @@ allprojects {
         withPlugin('com.android.library') {
             apply 'xyz.tynn.convention.android'
         }
+        withPlugin('org.jetbrains.kotlin.android') {
+            apply 'xyz.tynn.convention.kotlin'
+        }
+        withPlugin('org.jetbrains.kotlin.jvm') {
+            apply 'xyz.tynn.convention.kotlin'
+        }
     }
 
     pluginManager.withPlugin('com.github.ben-manes.versions') {

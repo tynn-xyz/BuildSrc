@@ -8,6 +8,13 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+
+import static org.gradle.api.attributes.Category.CATEGORY_ATTRIBUTE
+import static org.gradle.api.attributes.Category.DOCUMENTATION
+import static org.gradle.api.attributes.DocsType.DOCS_TYPE_ATTRIBUTE
+import static org.gradle.api.attributes.DocsType.SOURCES
 
 @DisplayName('xyz.tynn.convention.release')
 class XyzTynnConventionReleasePluginTest {
@@ -57,6 +64,22 @@ class XyzTynnConventionReleasePluginTest {
             project.with {
                 apply plugin: 'version-catalog'
                 assert components.release == components.versionCatalog
+            }
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = ['java', 'java-library', 'org.jetbrains.kotlin.jvm'])
+        void 'should release the java component with sources'(String plugin) {
+            project.with {
+                apply plugin: plugin
+                assert components.java.usages.any {
+                    it.attributes.with {
+                        final category = getAttribute(CATEGORY_ATTRIBUTE)?.name
+                        final docsType = getAttribute(DOCS_TYPE_ATTRIBUTE)?.name
+                        category == DOCUMENTATION && docsType == SOURCES
+                    }
+                }
+                assert components.release == components.java
             }
         }
     }

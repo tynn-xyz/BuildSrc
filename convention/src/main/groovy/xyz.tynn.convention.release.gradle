@@ -43,6 +43,11 @@ pluginManager.with {
             components.ext.release = components.versionCatalog
         }
 
+        withPlugin('java') {
+            java.withSourcesJar()
+            components.ext.release = components.java
+        }
+
         withPlugin('com.android.library') {
             android.publishing {
                 if (!hasPlugin('org.jetbrains.kotlin.multiplatform')) {
