@@ -10,9 +10,11 @@ if (parent == null) afterEvaluate {
     }
 }
 
-pluginManager.withPlugin('wrapper') {
-    tasks.named('wrapper') {
-        distributionType Wrapper.DistributionType.ALL
+if (parent == null) {
+    pluginManager.withPlugin('wrapper') {
+        tasks.named('wrapper') {
+            distributionType Wrapper.DistributionType.ALL
+        }
     }
 }
 

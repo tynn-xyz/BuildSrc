@@ -100,6 +100,17 @@ class XyzTynnConventionProjectPluginTest {
             assert rootProject.plugins.size() == 2
             assert subProject.plugins.size() == 0
         }
+
+        @Test
+        void 'should not configure subproject'() {
+            subProject.with {
+                apply plugin: XyzTynnConventionProjectPlugin
+                apply plugin: 'wrapper'
+            }
+
+            assert rootProject.plugins.size() == 1
+            assert subProject.plugins.size() == 2
+        }
     }
 
     @Nested
