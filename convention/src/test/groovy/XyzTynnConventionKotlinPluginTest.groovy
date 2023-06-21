@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-@DisplayName('xyz.tynn.convention.bom')
+@DisplayName('xyz.tynn.convention.kotlin')
 class XyzTynnConventionKotlinPluginTest {
 
     Project project
@@ -36,7 +36,7 @@ class XyzTynnConventionKotlinPluginTest {
     @Test
     void 'should add kotlin test dependency'() {
         project.configurations.testImplementation.dependencies.with {
-            assert size() == 2
+            assert size() == 1
             last().with {
                 assert name == 'kotlin-test'
                 assert group == 'org.jetbrains.kotlin'
