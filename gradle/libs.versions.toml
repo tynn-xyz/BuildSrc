@@ -1,5 +1,5 @@
 [versions]
-junit = "5.9.3"
+junit = "5.10.0"
 
 [plugins]
 gradle-publish = "com.gradle.plugin-publish:1.2.0"
