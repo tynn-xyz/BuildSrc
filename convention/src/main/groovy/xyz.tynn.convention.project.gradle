@@ -37,20 +37,6 @@ allprojects {
         }
     }
 
-    pluginManager.withPlugin('com.github.ben-manes.versions') {
-        tasks.named('dependencyUpdates') {
-            gradleReleaseChannel = 'current'
-            def isNonStable = { version ->
-                ['alpha', 'beta', 'dev', 'rc', 'cr', 'm', 'preview', 'b', 'ea', 'eap'].any {
-                    version ==~ /(?i).*[.-]${it}[.\d-+]*.*/
-                }
-            }
-            rejectVersionIf {
-                isNonStable(it.candidate.version) && !isNonStable(it.currentVersion)
-            }
-        }
-    }
-
     tasks.withType(Test).configureEach {
         testLogging {
             events "failed"

@@ -183,36 +183,4 @@ class XyzTynnConventionProjectPluginTest {
             }
         }
     }
-
-    @Nested
-    @DisplayName('with com.github.ben-manes.versions')
-    class OnVersions {
-
-        @ParameterizedTest
-        @ValueSource(strings = ['rootProject', 'subProject'])
-        void 'should use current Gradle release'(project) {
-            this."$project".with {
-                apply plugin: 'com.github.ben-manes.versions'
-                assert dependencyUpdates.gradleReleaseChannel == 'current'
-            }
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = ['rootProject', 'subProject'])
-        void 'should not checkConstraints'(project) {
-            this."$project".with {
-                apply plugin: 'com.github.ben-manes.versions'
-                assert !dependencyUpdates.checkConstraints
-            }
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = ['rootProject', 'subProject'])
-        void 'should not checkBuildEnvironmentConstraints'(project) {
-            this."$project".with {
-                apply plugin: 'com.github.ben-manes.versions'
-                assert !dependencyUpdates.checkBuildEnvironmentConstraints
-            }
-        }
-    }
 }
