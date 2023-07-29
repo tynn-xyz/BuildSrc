@@ -8,10 +8,7 @@ out/
 
 # Gradle files
 .gradle/
-gradle/wrapper/
 build/
-gradlew.bat
-gradlew
 
 # Local configuration file (sdk path, etc)
 local.properties
