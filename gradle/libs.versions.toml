@@ -2,7 +2,7 @@
 junit = "5.10.0"
 
 [plugins]
-gradle-publish = "com.gradle.plugin-publish:1.2.0"
+gradle-publish = "com.gradle.plugin-publish:1.2.1"
 
 [libraries]
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
