@@ -3,14 +3,13 @@
 
 pluginManager.with {
     withPlugin('maven-publish') {
-        apply 'signing'
-
-        signing {
-            final signingKey = System.env.SIGNING_KEY
-            final signingPassword = System.env.SIGNING_PASSWORD
-            if (signingKey && signingPassword) {
+        final signingKey = System.env.SIGNING_KEY
+        final signingPassword = System.env.SIGNING_PASSWORD
+        if (signingKey && signingPassword) {
+            apply 'signing'
+            signing {
                 useInMemoryPgpKeys(signingKey, signingPassword)
-                publishing.publications.all { sign it }
+                publishing.publications.configureEach { sign it }
             }
         }
 
@@ -24,7 +23,7 @@ pluginManager.with {
                 }
             }
 
-            publications.all {
+            publications.configureEach {
                 pom {
                     name = rootProject.name
                     url = System.env.PROJECT_URL

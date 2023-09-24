@@ -15,6 +15,11 @@ gradlePlugin {
     }
 }
 
+test {
+    environment 'SIGNING_KEY', 'key'
+    environment 'SIGNING_PASSWORD', 'pwd'
+}
+
 dependencies {
     testRuntimeOnly libs.junit.engine
     testImplementation libs.bundles.junit

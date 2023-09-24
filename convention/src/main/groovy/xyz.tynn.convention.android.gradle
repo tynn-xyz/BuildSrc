@@ -15,11 +15,11 @@ int intPropertyOrDefault(String propertyName, int defaultValue) {
 }
 
 android {
-    compileSdk 33
+    compileSdk 34
     namespace "${group}.${name}"
 
     defaultConfig {
-        targetSdk 33
+        targetSdk 34
         minSdk intPropertyOrDefault('android.defaults.sdk.min', 24)
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }

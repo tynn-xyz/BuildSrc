@@ -2,6 +2,7 @@ import com.gradle.publish.PublishTask
 
 plugins {
     alias libs.plugins.gradle.publish apply false
+    alias libs.plugins.project.convention
 }
 
 allprojects {
@@ -31,17 +32,9 @@ subprojects {
 
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
-        testLogging {
-            events "failed"
-            exceptionFormat "full"
-            showCauses true
-            showExceptions true
-            showStackTraces true
-        }
     }
 }
 
 tasks.named('wrapper') {
-    gradleVersion '8.2.1'
-    distributionType Wrapper.DistributionType.ALL
+    gradleVersion '8.3'
 }

@@ -46,10 +46,10 @@ class XyzTynnConventionAndroidPluginTest {
             apply plugin: XyzTynnConventionAndroidPlugin
             android {
                 assert namespace == "${group}.${name}"
-                assert compileSdk == 33
+                assert compileSdk == 34
                 defaultConfig {
                     assert minSdk == 24
-                    assert targetSdk == 33
+                    assert targetSdk == 34
                     assert testInstrumentationRunner == 'androidx.test.runner.AndroidJUnitRunner'
                 }
             }

@@ -2,14 +2,15 @@
 junit = "5.10.0"
 
 [plugins]
-gradle-publish = "com.gradle.plugin-publish:1.2.0"
+gradle-publish = "com.gradle.plugin-publish:1.2.1"
+project-convention = "xyz.tynn.convention.project:0.0.4"
 
 [libraries]
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
-plugin-android = "com.android.tools.build:gradle:8.1.0"
-plugin-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+plugin-android = "com.android.tools.build:gradle:8.1.1"
+plugin-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10"
 
 [bundles]
 junit = ['junit-api', 'junit-params']
