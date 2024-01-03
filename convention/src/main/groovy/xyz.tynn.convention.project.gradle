@@ -35,6 +35,13 @@ allprojects {
         withPlugin('org.jetbrains.kotlin.jvm') {
             apply 'xyz.tynn.convention.kotlin'
         }
+        withPlugin('io.github.gradle-nexus.publish-plugin') {
+            nexusPublishing.repositories.sonatype {
+                final host = 'https://s01.oss.sonatype.org'
+                nexusUrl.set uri("$host/service/local/")
+                snapshotRepositoryUrl.set uri("$host/content/repositories/snapshots/")
+            }
+        }
     }
 
     tasks.withType(Test).configureEach {
