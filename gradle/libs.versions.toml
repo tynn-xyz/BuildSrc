@@ -9,7 +9,7 @@ project-convention = "xyz.tynn.convention.project:0.0.5"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
-plugin-android = "com.android.tools.build:gradle:8.3.0"
+plugin-android = "com.android.tools.build:gradle:8.3.1"
 plugin-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
 
 [bundles]
