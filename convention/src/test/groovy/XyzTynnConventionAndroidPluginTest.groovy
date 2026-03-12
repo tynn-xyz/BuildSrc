@@ -46,10 +46,10 @@ class XyzTynnConventionAndroidPluginTest {
             apply plugin: XyzTynnConventionAndroidPlugin
             android {
                 assert namespace == "${group}.${name}"
-                assert compileSdk == 34
+                assert compileSdk == 36
                 defaultConfig {
                     assert minSdk == 24
-                    assert targetSdk == 34
+                    assert targetSdk == 36
                     assert testInstrumentationRunner == 'androidx.test.runner.AndroidJUnitRunner'
                 }
             }
@@ -65,43 +65,6 @@ class XyzTynnConventionAndroidPluginTest {
             android.lint {
                 assert abortOnError
                 assert warningsAsErrors
-            }
-        }
-    }
-
-    @Nested
-    @DisplayName('with org.jetbrains.kotlin.android')
-    class OnKotlin {
-
-        @ParameterizedTest
-        @ValueSource(strings = ['application', 'library'])
-        void 'should add -Xexplicit-api=strict after evaluate'(plugin) {
-            project.with {
-                apply plugin: "com.android.$plugin"
-                apply plugin: 'org.jetbrains.kotlin.android'
-                apply plugin: XyzTynnConventionAndroidPlugin
-                kotlin.explicitApi()
-                android.kotlinOptions {
-                    assert freeCompilerArgs == []
-                    evaluate()
-                    assert freeCompilerArgs == ['-Xexplicit-api=strict']
-                }
-            }
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = ['application', 'library'])
-        void 'should add -Xexplicit-api=warning after evaluate'(plugin) {
-            project.with {
-                apply plugin: "com.android.$plugin"
-                apply plugin: 'org.jetbrains.kotlin.android'
-                apply plugin: XyzTynnConventionAndroidPlugin
-                kotlin.explicitApiWarning()
-                android.kotlinOptions {
-                    assert freeCompilerArgs == []
-                    evaluate()
-                    assert freeCompilerArgs == ['-Xexplicit-api=warning']
-                }
             }
         }
     }

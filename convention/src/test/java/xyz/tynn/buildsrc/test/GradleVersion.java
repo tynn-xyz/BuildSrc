@@ -7,14 +7,10 @@ import static org.gradle.util.internal.DefaultGradleVersion.current;
 
 @SuppressWarnings("unused")
 public enum GradleVersion {
-    GRADLE_7_6("7.6.3"),
-    GRADLE_8_0("8.0.2"),
-    GRADLE_8_1("8.1.1"),
-    GRADLE_8_2("8.2.1"),
-    GRADLE_8_3("8.3"),
-    GRADLE_8_4("8.4"),
-    GRADLE_8_5("8.5"),
-    LATEST("8.6-RC") {
+    GRADLE_8_14("8.14.4"),
+    GRADLE_9_3("9.3.1"),
+    GRADLE_9_4("9.4.0"),
+    LATEST("latest") {
         @Override
         public String toString() {
             return current().getVersion();

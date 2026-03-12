@@ -4,7 +4,7 @@
 if (parent == null) afterEvaluate {
     try {
         tasks.register('clean', Delete) {
-            delete rootProject.buildDir
+            delete rootProject.layout.buildDirectory
         }
     } catch (InvalidUserDataException ignored) {
     }
@@ -13,7 +13,7 @@ if (parent == null) afterEvaluate {
 if (parent == null) {
     pluginManager.withPlugin('wrapper') {
         tasks.named('wrapper') {
-            distributionType Wrapper.DistributionType.ALL
+            distributionType = Wrapper.DistributionType.ALL
         }
     }
 }
@@ -35,22 +35,15 @@ allprojects {
         withPlugin('org.jetbrains.kotlin.jvm') {
             apply 'xyz.tynn.convention.kotlin'
         }
-        withPlugin('io.github.gradle-nexus.publish-plugin') {
-            nexusPublishing.repositories.sonatype {
-                final host = 'https://s01.oss.sonatype.org'
-                nexusUrl.set uri("$host/service/local/")
-                snapshotRepositoryUrl.set uri("$host/content/repositories/snapshots/")
-            }
-        }
     }
 
     tasks.withType(Test).configureEach {
         testLogging {
-            events "failed"
-            exceptionFormat "full"
-            showCauses true
-            showExceptions true
-            showStackTraces true
+            events 'failed'
+            exceptionFormat = 'full'
+            showCauses = true
+            showExceptions = true
+            showStackTraces = true
         }
     }
 }

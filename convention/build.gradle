@@ -4,13 +4,19 @@ plugins {
 }
 
 gradlePlugin {
+    final mainId = 'xyz.tynn.convention.project'
+    plugins {
+        register('main') {
+            id = mainId
+            implementationClass = 'XyzTynnConventionProjectPlugin'
+            displayName = 'Project convention plugin'
+            description = 'Configures all Android modules, the Maven release and the Versions plugin'
+            tags.set(['android', 'convention', 'release', 'versions', 'wrapper'])
+        }
+    }
     afterEvaluate {
         plugins {
-            named('xyz.tynn.convention.project') {
-                displayName = 'Project convention plugin'
-                description = 'Configures all Android modules, the Maven release and the Versions plugin'
-                tags.set(['android', 'convention', 'release', 'versions', 'wrapper'])
-            }
+            remove(named(mainId))
         }
     }
 }
@@ -21,7 +27,7 @@ test {
 }
 
 dependencies {
-    testRuntimeOnly libs.junit.engine
+    testRuntimeOnly libs.junit.platform
     testImplementation libs.bundles.junit
 
     testRuntimeOnly libs.bundles.plugins.convention

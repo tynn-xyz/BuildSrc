@@ -14,42 +14,36 @@ int intPropertyOrDefault(String propertyName, int defaultValue) {
     defaultValue
 }
 
+if (androidComponents.pluginVersion.major >= 9) {
+    pluginManager.apply 'xyz.tynn.convention.kotlin'
+}
+
 android {
-    compileSdk 34
-    namespace "${group}.${name}"
+    compileSdk = 36
+    namespace = "${group}.${name}"
 
     defaultConfig {
-        targetSdk 34
-        minSdk intPropertyOrDefault('android.defaults.sdk.min', 24)
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        targetSdk = 36
+        minSdk = intPropertyOrDefault('android.defaults.sdk.min', 24)
+        testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     lint {
-        abortOnError true
-        warningsAsErrors true
+        abortOnError = true
+        warningsAsErrors = true
     }
 
     if (pluginManager.hasPlugin('com.android.application')) {
         buildTypes {
             debug {
-                applicationIdSuffix '.debug'
-                versionNameSuffix '+debug'
+                applicationIdSuffix = '.debug'
+                versionNameSuffix = '+debug'
             }
 
             release {
-                minifyEnabled true
+                minifyEnabled = true
                 proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
-                signingConfig signingConfigs.debug
-            }
-        }
-    }
-
-    pluginManager.withPlugin('org.jetbrains.kotlin.android') {
-        kotlinOptions {
-            afterEvaluate {
-                kotlin.explicitApi?.with {
-                    freeCompilerArgs += toCompilerArg()
-                }
+                signingConfig = signingConfigs.debug
             }
         }
     }

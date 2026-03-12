@@ -56,7 +56,7 @@ further configurations.
 #### Default configuration
 
  * Sets the namespace to `${group}.${project.name}`
- * Sets the compile and target SDK level to 33
+ * Sets the compile and target SDK level to 36
  * Sets the minimum SDK level to 24 by default
    * Override with `android.defaults.sdk.min` in `gradle.properties`
  * Uses the _AndroidX_ test runner by default
@@ -118,7 +118,7 @@ environment variables are provided.
 License
 -------
 
-    Copyright (C) 2019-2023 Christian Schmitz
+    Copyright (C) 2019-2026 Christian Schmitz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -140,4 +140,4 @@ License
   [build]: https://github.com/tynn-xyz/BuildSrc/actions
   [build-badge]: https://img.shields.io/github/actions/workflow/status/tynn-xyz/BuildSrc/build.yml?label=Build&logo=github&logoColor=F5F5F5
   [convention]: https://plugins.gradle.org/plugin/xyz.tynn.convention.project
-  [convention-badge]: https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/xyz/tynn/convention/project/xyz.tynn.convention.project.gradle.plugin/maven-metadata.xml?label=Plugin&logo=gradle
+  [convention-badge]: https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fxyz%2Ftynn%2Fconvention%2Fproject%2Fxyz.tynn.convention.project.gradle.plugin%2Fmaven-metadata.xml&label=Plugin&logo=gradle

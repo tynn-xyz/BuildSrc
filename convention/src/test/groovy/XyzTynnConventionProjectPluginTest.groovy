@@ -32,6 +32,9 @@ class XyzTynnConventionProjectPluginTest {
                 .withName('sub')
                 .withParent(rootProject)
                 .build()
+        rootProject.allprojects {
+            group = "testing"
+        }
         rootProject.apply plugin: XyzTynnConventionProjectPlugin
     }
 
@@ -164,7 +167,6 @@ class XyzTynnConventionProjectPluginTest {
         void 'should apply XyzTynnConventionKotlinPlugin'(project) {
             this."$project".with {
                 apply plugin: 'com.android.library'
-                apply plugin: 'org.jetbrains.kotlin.android'
                 assert plugins.hasPlugin(XyzTynnConventionKotlinPlugin)
             }
         }

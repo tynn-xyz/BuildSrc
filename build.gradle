@@ -1,3 +1,4 @@
+import com.gradle.publish.PluginConfiguration
 import com.gradle.publish.PublishTask
 
 plugins {
@@ -11,7 +12,7 @@ allprojects {
 
 subprojects {
     pluginManager.withPlugin(libs.plugins.gradle.publish.get().pluginId) {
-        java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+        java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
         gradlePlugin {
             website = 'https://github.com/tynn-xyz/BuildSrc'
@@ -19,22 +20,18 @@ subprojects {
         }
 
         tasks.withType(PublishTask).configureEach {
-            final hiddenPlugins = objects.domainObjectSet(PluginDeclaration)
+            final hiddenPlugins = objects.domainObjectSet(PluginConfiguration)
             hiddenPlugins.addAllLater providers.provider {
-                gradlePlugin.plugins.matching {
+                config.get().plugins.findAll {
                     it.with { !displayName || !description || !tags }
                 }
             }
-            doFirst { gradlePlugin.plugins.removeAll hiddenPlugins }
-            doLast { gradlePlugin.plugins.addAll hiddenPlugins }
+            doFirst { config.get().plugins.removeAll hiddenPlugins }
+            doLast { config.get().plugins.addAll hiddenPlugins }
         }
     }
 
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
     }
-}
-
-tasks.named('wrapper') {
-    gradleVersion '8.3'
 }
