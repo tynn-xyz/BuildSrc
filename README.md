@@ -8,10 +8,54 @@ BuildSrc
 
 Convention Plugins
 ------------------
-[![Plugin][convention-badge]][convention]
+
+### _**Settings**_ convention
+
+[![Plugin][convention-settings-badge]][convention-settings]
+
+    plugins {
+        id 'xyz.tynn.convention.settings' version "${xyzTynnConventionVersion}"
+    }
+
+The published base convention plugin which should be applied to the _Gradle_
+settings.
+
+* Applies `xyz.tynn.convention.catalog` to the settings
+* Applies `xyz.tynn.convention.maven` to the settings
+
+### _**Catalog**_ convention
+
+    plugins {
+        id 'xyz.tynn.convention.catalog'
+    }
+
+Configures a [Versions Catalog] named `convention` containing
+the current convention version and all project level plugins.
+
+### _**Maven**_ convention
+
+    plugins {
+        id 'xyz.tynn.convention.maven'
+    }
+
+Configures all `google()` _Maven_ repositories to only include
+groups related to _Google_:
+
+ * `android` and `android.*`
+ * `androidx` and `androidx.*`
+ * `com.android` and `com.android.*`
+ * `com.crashlytics` and `com.crashlytics.*`
+ * `com.google` and `com.google.*`
+ * `org.chromium` and `org.chromium.*`
+ * `org.multipaz` and `org.multipaz.*`
+
+### _**Project**_ convention
+
+[![Plugin][convention-project-badge]][convention-project]
 
     plugins {
         id 'xyz.tynn.convention.project' version 'x.y.z'
+        alias convention.plugins.project
     }
 
 The published base convention plugin which should be applied to the root
@@ -31,6 +75,7 @@ project.
 
     plugins {
         id 'xyz.tynn.convention.bom'
+        alias convention.plugins.bom
     }
 
 Configures the `project` to collect all other published projects to create a
@@ -40,6 +85,7 @@ Configures the `project` to collect all other published projects to create a
 
     plugins {
         id 'xyz.tynn.convention.android'
+        alias convention.plugins.android
     }
 
 Configures an _Android_ project and provides a marker plugin to simplify
@@ -88,7 +134,8 @@ DSL variants.
 ### Kotlin convention
 
     plugins {
-        id 'xyz.tynn.convention.release'
+        id 'xyz.tynn.convention.kotlin'
+        alias convention.plugins.kotlin
     }
 
 Configures a _Kotlin_ project and provides a marker plugin to simplify
@@ -99,6 +146,7 @@ and a test implementation dependency Kotlin Test.
 
     plugins {
         id 'xyz.tynn.convention.release'
+        alias convention.plugins.release
     }
 
 Configures _Maven_ publishing of a release publication for the `project`.
@@ -135,9 +183,12 @@ License
 
   [Gradle BOM]: https://docs.gradle.org/current/userguide/dependency_version_alignment.html
   [Gradle Plugin Portal]: https://plugins.gradle.org/search?term=xyz.tynn
+  [Versions Catalog]: https://docs.gradle.org/current/userguide/version_catalogs.html
   [Versions Plugin]: https://plugins.gradle.org/search?term=xyz.tynn
 
   [build]: https://github.com/tynn-xyz/BuildSrc/actions
   [build-badge]: https://img.shields.io/github/actions/workflow/status/tynn-xyz/BuildSrc/build.yml?label=Build&logo=github&logoColor=F5F5F5
-  [convention]: https://plugins.gradle.org/plugin/xyz.tynn.convention.project
-  [convention-badge]: https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fxyz%2Ftynn%2Fconvention%2Fproject%2Fxyz.tynn.convention.project.gradle.plugin%2Fmaven-metadata.xml&label=Plugin&logo=gradle
+  [convention-project]: https://plugins.gradle.org/plugin/xyz.tynn.convention.project
+  [convention-project-badge]: https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fxyz%2Ftynn%2Fconvention%2Fproject%2Fxyz.tynn.convention.project.gradle.plugin%2Fmaven-metadata.xml&label=Plugin&logo=gradle
+  [convention-settings]: https://plugins.gradle.org/plugin/xyz.tynn.convention.settings
+  [convention-settings-badge]: https://img.shields.io/maven-metadata/v?metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fxyz%2Ftynn%2Fconvention%2Fsettings%2Fxyz.tynn.convention.settings.gradle.plugin%2Fmaven-metadata.xml&label=Plugin&logo=gradle

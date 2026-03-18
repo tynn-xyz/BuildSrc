@@ -1,34 +1,38 @@
-plugins {
-    alias libs.plugins.gradle.publish
-    id 'groovy-gradle-plugin'
-}
+subprojects {
+    final mainPluginId = "xyz.tynn.convention.${project.name}"
+    final mainPluginName = "convention${project.name.capitalize()}Plugin"
 
-gradlePlugin {
-    final mainId = 'xyz.tynn.convention.project'
-    plugins {
-        register('main') {
-            id = mainId
-            implementationClass = 'XyzTynnConventionProjectPlugin'
-            displayName = 'Project convention plugin'
-            description = 'Configures all Android modules, the Maven release and the Versions plugin'
-            tags.set(['android', 'convention', 'release', 'versions', 'wrapper'])
+    plugins.withId(libs.plugins.gradle.publish.get().pluginId) {
+        gradlePlugin.plugins {
+            register(mainPluginName) {
+                id = mainPluginId
+                implementationClass = 'unknown'
+            }
         }
     }
-    afterEvaluate {
-        plugins {
-            remove(named(mainId))
+
+    plugins.withId('groovy-gradle-plugin') {
+        afterEvaluate {
+            gradlePlugin.plugins {
+                final mainPluginDup = named(mainPluginId)
+                named(mainPluginName) {
+                    implementationClass = mainPluginDup.get().implementationClass
+                }
+                remove mainPluginDup
+            }
+        }
+    }
+
+    plugins.withId('maven-publish') {
+        publishing.publications.configureEach {
+            artifactId = "convention-${project.name}"
         }
     }
 }
 
-test {
-    environment 'SIGNING_KEY', 'key'
-    environment 'SIGNING_PASSWORD', 'pwd'
-}
-
-dependencies {
-    testRuntimeOnly libs.junit.platform
-    testImplementation libs.bundles.junit
-
-    testRuntimeOnly libs.bundles.plugins.convention
+evaluationDependsOnChildren()
+['build', 'check', 'publishPlugins', 'publishToMavenLocal'].each { name ->
+    tasks.register(name) {
+        dependsOn subprojects*.tasks*.named(name)
+    }
 }

@@ -1,0 +1,13 @@
+//  Copyright 2026 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+dependencyResolutionManagement.versionCatalogs {
+    convention {
+        version('plugins', '$version')
+        plugin('project', 'xyz.tynn.convention.project') versionRef 'plugins'
+        plugin('android', 'xyz.tynn.convention.android') version ''
+        plugin('bom', 'xyz.tynn.convention.bom') version ''
+        plugin('kotlin', 'xyz.tynn.convention.kotlin') version ''
+        plugin('release', 'xyz.tynn.convention.release') version ''
+    }
+}

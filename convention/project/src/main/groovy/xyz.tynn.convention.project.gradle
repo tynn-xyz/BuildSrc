@@ -1,19 +1,19 @@
 //  Copyright 2023 Christian Schmitz
 //  SPDX-License-Identifier: Apache-2.0
 
-if (parent == null) afterEvaluate {
-    try {
-        tasks.register('clean', Delete) {
-            delete rootProject.layout.buildDirectory
-        }
-    } catch (InvalidUserDataException ignored) {
-    }
-}
-
 if (parent == null) {
     pluginManager.withPlugin('wrapper') {
         tasks.named('wrapper') {
             distributionType = Wrapper.DistributionType.ALL
+        }
+    }
+
+    afterEvaluate {
+        try {
+            tasks.register('clean', Delete) {
+                delete rootProject.layout.buildDirectory
+            }
+        } catch (InvalidUserDataException ignored) {
         }
     }
 }
@@ -21,7 +21,9 @@ if (parent == null) {
 allprojects {
     pluginManager.with {
         withPlugin('maven-publish') {
-            apply 'xyz.tynn.convention.release'
+            if (findProperty('xyz.tynn.convention.release')?.toBoolean() != false) {
+                apply 'xyz.tynn.convention.release'
+            }
         }
         withPlugin('com.android.application') {
             apply 'xyz.tynn.convention.android'

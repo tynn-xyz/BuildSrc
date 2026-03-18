@@ -1,3 +1,7 @@
+plugins {
+    id 'xyz.tynn.convention.settings' version "$xyzTynnConventionVersion"
+}
+
 dependencyResolutionManagement {
     repositories {
         google()
@@ -6,4 +10,5 @@ dependencyResolutionManagement {
     }
 }
 
-include ':convention'
+include ':convention:project'
+include ':convention:settings'

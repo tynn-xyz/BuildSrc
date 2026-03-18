@@ -1,0 +1,7 @@
+//  Copyright 2026 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+pluginManager.with {
+    apply 'xyz.tynn.convention.catalog'
+    apply 'xyz.tynn.convention.maven'
+}

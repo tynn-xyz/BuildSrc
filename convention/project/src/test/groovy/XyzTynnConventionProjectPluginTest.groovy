@@ -128,6 +128,16 @@ class XyzTynnConventionProjectPluginTest {
                 assert plugins.hasPlugin(XyzTynnConventionReleasePlugin)
             }
         }
+
+        @ParameterizedTest
+        @ValueSource(strings = ['rootProject', 'subProject'])
+        void 'should not apply XyzTynnConventionReleasePlugin'(project) {
+            this."$project".with {
+                ext.'xyz.tynn.convention.release' = false
+                apply plugin: 'maven-publish'
+                assert !plugins.hasPlugin(XyzTynnConventionReleasePlugin)
+            }
+        }
     }
 
     @Nested

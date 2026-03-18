@@ -1,0 +1,28 @@
+//  Copyright 2026 Christian Schmitz
+//  SPDX-License-Identifier: Apache-2.0
+
+final GOOGLE_HOST = /.+\.google\.com$/
+
+pluginManagement.repositories.configureEach {
+    if (url.host ==~ GOOGLE_HOST) {
+        content {
+            includeGroupAndSubgroups 'androidx'
+            includeGroupAndSubgroups 'com.android'
+            includeGroupAndSubgroups 'com.google'
+        }
+    }
+}
+
+dependencyResolutionManagement.repositories.configureEach {
+    if (url.host ==~ GOOGLE_HOST) {
+        content {
+            includeGroupAndSubgroups 'android'
+            includeGroupAndSubgroups 'androidx'
+            includeGroupAndSubgroups 'com.android'
+            includeGroupAndSubgroups 'com.crashlytics'
+            includeGroupAndSubgroups 'com.google'
+            includeGroupAndSubgroups 'org.chromium'
+            includeGroup 'org.multipaz'
+        }
+    }
+}

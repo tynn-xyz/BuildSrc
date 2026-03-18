@@ -1,0 +1,24 @@
+plugins {
+    alias libs.plugins.gradle.publish
+    id 'groovy-gradle-plugin'
+}
+
+gradlePlugin.plugins {
+    named('conventionProjectPlugin') {
+        displayName = 'Project convention plugin'
+        description = 'Configures all Android modules, the Maven release and the Versions plugin'
+        tags.set(['android', 'convention', 'release', 'versions', 'wrapper'])
+    }
+}
+
+test {
+    environment 'SIGNING_KEY', 'key'
+    environment 'SIGNING_PASSWORD', 'pwd'
+}
+
+dependencies {
+    testRuntimeOnly libs.junit.platform
+    testImplementation libs.bundles.junit
+
+    testRuntimeOnly libs.bundles.plugins.convention.project
+}

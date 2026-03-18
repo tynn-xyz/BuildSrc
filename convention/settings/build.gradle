@@ -1,0 +1,26 @@
+import org.gradle.plugin.devel.internal.precompiled.ExtractPluginRequestsTask
+
+plugins {
+    alias libs.plugins.gradle.publish
+    id 'groovy-gradle-plugin'
+}
+
+gradlePlugin.plugins {
+    named('conventionSettingsPlugin') {
+        displayName = 'Settings convention plugin'
+        description = 'Provides a catalog for project conventions and configures the Google Maven repository'
+        tags.set(['catalog', 'convention', 'settings'])
+    }
+}
+
+sourceSets.main.groovy.srcDir tasks.register('expandTemplates', Copy) {
+    into layout.buildDirectory.dir('generated/sources/templates')
+    from layout.projectDirectory.dir('src/main/template')
+    inputs.property 'expand.version', version
+    expand([version: version])
+}
+
+// https://github.com/gradle/gradle/issues/37135
+tasks.withType(ExtractPluginRequestsTask).configureEach {
+    dependsOn sourceSets.main.groovy
+}
