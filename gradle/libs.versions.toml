@@ -8,7 +8,7 @@ gradle-publish = "com.gradle.plugin-publish:2.1.0"
 junit-api = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platform = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-plugin-android = "com.android.tools.build:gradle:9.1.0"
+plugin-android = "com.android.tools.build:gradle:9.1.1"
 plugin-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.3.20"
 
 [bundles]
